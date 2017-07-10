@@ -1,9 +1,10 @@
 hosts:
   db:
-    address: 192.168.1.1  # supports db.domain.com
-    port: 22
-    username: whoever
+    hostname: seequestor@web1.london1.sq:22
     key: ~/.ssh/id_rsa
+
+  web1:
+    hostname: mysshconfigname
 
 checks:
   - name: Disk usage on /dev/sda1

@@ -1,39 +1,118 @@
 (ns hal.scheduler
-  (:require [twarc.core :as twarc]
-            [com.stuartsierra.component :as component]))
+  (:import java.util.Properties
+           org.quartz.Scheduler
+           org.quartz.SchedulerException
+           org.quartz.impl.StdSchedulerFactory
+           org.quartz.Job
+           org.quartz.JobBuilder
+           org.quartz.JobDataMap
+           org.quartz.JobExecutionContext
+           org.quartz.JobKey
+           org.quartz.TriggerBuilder
+           org.quartz.CronScheduleBuilder
+           org.quartz.SimpleScheduleBuilder
+           org.quartz.PersistJobDataAfterExecution
+           org.quartz.DisallowConcurrentExecution))
 
-(def scheduler-options
-  {:threadPool.threadCount 1
-   :threadPool.threadPriority Thread/MIN_PRIORITY
-   :threadPool.makeThreadsDaemons true})
+;; --- Implementation
 
-(defn- run-dynamic-job
-  [scheduler implfn & args]
-  (apply implfn args))
+(defn- map->props
+  [data]
+  (let [p (Properties.)]
+    (run! (fn [[k v]] (.setProperty p (name k) (str v))) (seq data))
+    p))
+
+(deftype JobImpl []
+  Job
+  (execute [_ context]
+    (let [^JobDataMap data (.. context getJobDetail getJobDataMap)
+          args (.get data "arguments")
+          state (.get data "state")
+          callable (.get data "callable")]
+      (if state
+        (apply callable state args)
+        (apply callable args)))))
+
+;; (defn- resolve-var
+;;   [sym]
+;;   (let [ns (symbol (namespace sym))
+;;         func (symbol (name sym))]
+;;     (require ns)
+;;     (resolve func)))
+
+(defn- build-trigger
+  [opts]
+  (let [repeat? (:repeat? opts true)
+        interval (:interval opts 1000)
+        cron (:cron opts)
+        group (:group opts "hal")
+        schdl (if cron
+                (CronScheduleBuilder/cronSchedule cron)
+                (let [schdl (SimpleScheduleBuilder/simpleSchedule)
+                      schdl (if (number? repeat?)
+                              (.withRepeatCount schdl repeat?)
+                              (.repeatForever schdl))]
+                  (.withIntervalInMilliseconds schdl interval)))
+        id (str (:id opts) "-trigger")
+        bldr (doto (TriggerBuilder/newTrigger)
+               (.startNow)
+               (.withIdentity id group)
+               (.withSchedule schdl))]
+    (.build bldr)))
+
+(defn- build-job-detail
+  [f args opts]
+  (let [state (:state opts)
+        group (:group opts "hal")
+        id    (str (:id opts))
+        data  {"callable" f
+               "arguments" (into [] args)
+               "state" (if state (atom state) nil)}
+        bldr (doto (JobBuilder/newJob JobImpl)
+               (.storeDurably false)
+               (.usingJobData (JobDataMap. data))
+               (.withIdentity id group))]
+    (.build bldr)))
+
+(defn- make-scheduler-props
+  [{:keys [name daemon? threads thread-priority]
+    :or {name "uxbox-scheduler"
+         daemon? true
+         threads 1
+         thread-priority Thread/MIN_PRIORITY}}]
+  (map->props
+   {"org.quartz.threadPool.threadCount" threads
+    "org.quartz.threadPool.threadPriority" thread-priority
+    "org.quartz.threadPool.makeThreadsDaemons" (if daemon? "true" "false")
+    "org.quartz.scheduler.instanceName" name
+    "org.quartz.scheduler.makeSchedulerThreadDaemon" (if daemon? "true" "false")}))
+
+;; --- Public Api
 
 (defn start
-  "Start new quartz scheduler."
-  []
-  (-> (twarc/make-scheduler scheduler-options)
-      (twarc/start)))
+  ([]
+   (start schd nil))
+  ([opts]
+   (let [props (make-scheduler-props opts)
+         factory (StdSchedulerFactory. props)]
+     (.getScheduler factory))))
 
 (defn stop
-  "Stop the scheduler."
-  [sched]
-  (component/stop sched))
+  [scheduler]
+  (.shutdown ^Scheduler scheduler true))
 
-(defn schedule-job!
-  [scheduler implfn {:keys [cron] :as ctx}]
-  {:pre [(fn? implfn)
-         (string? cron)]}
-  (let [id (str (uuid/random))]
-    (twarc/schedule-job scheduler #'run-dynamic-job [implfn ctx]
-                        :job {:identity id}
-                        :trigger {:cron cron})
+(defn schedule!
+  [schd f args opts]
+  (let [id (uuid/random-str)
+        opts (merge {:id id} opts)
+        job (build-job-detail f args opts)
+        trigger (build-trigger opts)]
+    (.scheduleJob ^Scheduler schd job trigger)
     id))
 
-(defn unschedule-job!
+(defn unschedule!
   [scheduler jobid]
   {:pre [(string? jobid)]}
-  (twarc/delete-job scheduler jobid))
-
+  (let [key (JobKey. jobid "hal")]
+    (.deleteJob scheduler key)
+    nil))
