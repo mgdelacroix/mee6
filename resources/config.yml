@@ -1,0 +1,26 @@
+hosts:
+  - name: db
+    address: 192.168.1.1  # supports db.domain.com
+    port: 22
+    username: whoever
+
+checks:
+  - name: Disk usage on /dev/sda1
+    hosts:
+      - db  # supports both hosts and groups
+      - web1
+      - web2
+    cron: 5 * * * *  # cron expression, not in phase 1
+    module: disk_usage
+    args:
+      device: /dev/sda1
+      yellow_flag: 80
+      red_flag: 95
+    notify: sys
+
+notifications:
+  - name: sys
+    description: The systems guys
+    email:  # generic for both yellow and red
+      - john.doe@example.com
+      - jane.doe@example.com
