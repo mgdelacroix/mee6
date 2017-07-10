@@ -1,8 +1,9 @@
 hosts:
-  - name: db
+  db:
     address: 192.168.1.1  # supports db.domain.com
     port: 22
     username: whoever
+    key: ~/.ssh/id_rsa
 
 checks:
   - name: Disk usage on /dev/sda1
@@ -11,15 +12,21 @@ checks:
       - web1
       - web2
     cron: 5 * * * *  # cron expression, not in phase 1
-    module: disk_usage
-    args:
-      device: /dev/sda1
-      yellow_flag: 80
-      red_flag: 95
     notify: sys
+    module: disk-usage
+    device: /dev/sda1
+    threshold: 80
 
-notifications:
-  - name: sys
+  - name: Check if nginx is up and running
+    hosts:
+      - web
+    cron: @daily
+    notify: sys
+    module: service
+    service: nginx
+
+notify:
+  sys:
     description: The systems guys
     email:  # generic for both yellow and red
       - john.doe@example.com
