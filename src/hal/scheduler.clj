@@ -1,4 +1,5 @@
 (ns hal.scheduler
+  (:require [hal.uuid :as uuid])
   (:import java.util.Properties
            org.quartz.Scheduler
            org.quartz.SchedulerException
@@ -32,13 +33,6 @@
       (if state
         (apply callable state args)
         (apply callable args)))))
-
-;; (defn- resolve-var
-;;   [sym]
-;;   (let [ns (symbol (namespace sym))
-;;         func (symbol (name sym))]
-;;     (require ns)
-;;     (resolve func)))
 
 (defn- build-trigger
   [opts]
@@ -91,7 +85,7 @@
 
 (defn start
   ([]
-   (start schd nil))
+   (start nil))
   ([opts]
    (let [props (make-scheduler-props opts)
          factory (StdSchedulerFactory. props)]
