@@ -15,24 +15,24 @@ hosts:
     hostname: raider
 
 checks:
-  - name: Disk usage on /dev/sda1
-    hosts:
-      - entity
-      - raider
-    cron: "*/5 * * * * ?"
-    notify: sys
-    module: disk-usage
-#    device: /dev/sda1
-    device: tank/data-tomb
-    threshold: 10
-
-#  - name: Check if nginx is up and running
+#  - name: Disk usage on /dev/sda1
 #    hosts:
-#      - web1
+#      - entity
+#      - raider
 #    cron: "*/5 * * * * ?"
 #    notify: sys
-#    module: service
-#    service: nginx
+#    module: disk-usage
+##    device: /dev/sda1
+#    device: tank/data-tomb
+#    threshold: 10
+#
+  - name: Check if nginx is up and running
+    hosts:
+      - raider
+    cron: "*/5 * * * * ?"
+    notify: test
+    module: service
+    service: nginx
 
 notify:
   sys:
@@ -40,5 +40,7 @@ notify:
     emails:
       - john.doe@example.com
       - jane.doe@example.com
-
-
+  test:
+    description: Testing
+    emails:
+      - me@example.com
