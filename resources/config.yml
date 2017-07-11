@@ -11,8 +11,7 @@ checks:
     hosts:
       - db  # supports both hosts and groups
       - web1
-      - web2
-    cron: 5 * * * *  # cron expression, not in phase 1
+    cron: "*/1 * * * *"  # cron expression, not in phase 1
     notify: sys
     module: disk-usage
     device: /dev/sda1
@@ -20,7 +19,7 @@ checks:
 
   - name: Check if nginx is up and running
     hosts:
-      - web
+      - web1
     cron: "@daily"
     notify: sys
     module: service

@@ -1,9 +1,13 @@
 (ns hal.config
-  (:require [yaml.core :as yaml]
-            [clojure.walk :refer [keywordize-keys]]
+  (:refer-clojure :exclude [load])
+  (:require [clojure.walk :refer [keywordize-keys]]
             [clojure.spec.alpha :as s]
             [clojure.pprint :refer [pprint]]
+            [environ.core :refer [env]]
+            [yaml.core :as yaml]
             [hal.exceptions :as exc]))
+
+;; --- Configuration file spec.
 
 (s/def :host/hostname string?)
 (s/def :host/key string?)
@@ -36,20 +40,21 @@
                                  :config/checks
                                  :config/notify]))
 
-(defn validate
-  [config]
-  (let [result (s/conform ::config config)]
-    (pprint config)
+;; --- Configuration file validation and loading
+
+(defn- validate
+  [data]
+  (let [result (s/conform ::config data)]
     (when (= result ::s/invalid)
       (exc/raise :message "Invalid configuration."
                  :type :validation
-                 :explain (s/explain-str ::config config)))
+                 :explain (s/explain-str ::config data)))
 
     result))
 
-(defn parse
-  [path]
-  (-> path
+(defn load
+  []
+  (-> (get env :hal-config "resources/config.yml")
       (yaml/from-file)
       (keywordize-keys)
       (validate)))

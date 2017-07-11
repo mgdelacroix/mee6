@@ -70,7 +70,7 @@
 
 (defn- make-scheduler-props
   [{:keys [name daemon? threads thread-priority]
-    :or {name "uxbox-scheduler"
+    :or {name "hal-scheduler"
          daemon? true
          threads 1
          thread-priority Thread/MIN_PRIORITY}}]
@@ -89,20 +89,22 @@
   ([opts]
    (let [props (make-scheduler-props opts)
          factory (StdSchedulerFactory. props)]
-     (.getScheduler factory))))
+     (doto (.getScheduler factory)
+       (.start)))))
 
 (defn stop
   [scheduler]
   (.shutdown ^Scheduler scheduler true))
 
 (defn schedule!
-  [schd f args opts]
-  (let [id (uuid/random-str)
-        opts (merge {:id id} opts)
-        job (build-job-detail f args opts)
-        trigger (build-trigger opts)]
-    (.scheduleJob ^Scheduler schd job trigger)
-    id))
+  ([scheduler f args] (schedule! scheduler f args nil))
+  ([scheduler f args opts]
+   (let [id (uuid/random-str)
+         opts (merge {:id id} opts)
+         job (build-job-detail f args opts)
+         trigger (build-trigger opts)]
+     (.scheduleJob ^Scheduler scheduler job trigger)
+     id)))
 
 (defn unschedule!
   [scheduler jobid]

@@ -5,6 +5,7 @@
   (let [capacity 479610056
         used 301760240
         percentage (/ (* used 100) capacity)]
+    (println "kaka1")
     {:capacity capacity
      :used used
      :percentage percentage})

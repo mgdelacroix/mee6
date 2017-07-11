@@ -1,5 +1,19 @@
 (ns hal.core
-  (:require [hal.config :as cfg]))
+  (:require [mount.core :as mount :refer [defstate]]
+            [hal.config :as cfg]
+            [hal.engine :as ngx]
+            [hal.scheduler :as schd]))
+
+(defstate config
+  :start (cfg/load))
+
+(defstate scheduler
+  :start (schd/start)
+  :stop (schd/stop scheduler))
+
+(defstate engine
+  :start (ngx/start scheduler config)
+  :stop (ngx/stop engine))
 
 (defn- handle-error
   [err]
@@ -15,16 +29,11 @@
       (.printStackTrace err)
       (System/exit -2))))
 
-
-(defn start
-  []
-  (let [config (cfg/parse "resources/config.yml")]
-    ;; do nothing
-    ))
-
 (defn -main
   [& [path]]
   (try
-    (start)
+    (mount/start)
     (catch Exception e
-      (handle-error e))))
+      (let [cause (.getCause e)]
+        (handle-error cause)))))
+
