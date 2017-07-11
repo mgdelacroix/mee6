@@ -3,5 +3,9 @@
             [clojure.string :as str]))
 
 (defn run
-  [host cmd]
-  (apply shell/sh "ssh" host (str/split cmd #"\s+")))
+  [{:keys [hostname key] :as host} cmd]
+  ;; TODO: add spec for host
+  ;;       handle key
+  (println "ssh/run" host cmd)
+  (apply shell/sh "ssh" hostname (str/split cmd #"\s+")))
+

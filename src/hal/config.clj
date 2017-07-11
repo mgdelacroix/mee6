@@ -30,10 +30,10 @@
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
 
 (s/def :notify/description string?)
-(s/def :notify/email (s/coll-of string? :kind vector? :min-count 1))
+(s/def :notify/emails (s/coll-of string? :kind vector? :min-count 1))
 
 (s/def :config/single-notify (s/keys :req-un [:notify/description
-                                              :notify/email]))
+                                              :notify/emails]))
 
 (s/def :config/notify (s/map-of keyword? :config/single-notify))
 (s/def ::config (s/keys :req-un [:config/hosts

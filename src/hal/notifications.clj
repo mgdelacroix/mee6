@@ -11,4 +11,5 @@
 
 (defn send-all
   [{:keys [notify] :as ctx} status]
-  (run! send (:emails notify)))
+  (println "ESTOY NOTIFICANDOOOOOOO A TODOOOOOOOOOOOH" notify)
+  (run! #(send ctx status %) (:emails notify)))

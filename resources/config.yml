@@ -6,28 +6,33 @@ hosts:
   web1:
     hostname: mysshconfigname
 
+  entity:
+    hostname: entity
+
 checks:
   - name: Disk usage on /dev/sda1
     hosts:
-      - db
-      - web1
+      - entity
     cron: "*/5 * * * * ?"
     notify: sys
     module: disk-usage
-    device: /dev/sda1
+#    device: /dev/sda1
+    device: tank/data-tomb
     threshold: 80
 
-  - name: Check if nginx is up and running
-    hosts:
-      - web1
-    cron: "*/5 * * * * ?"
-    notify: sys
-    module: service
-    service: nginx
+#  - name: Check if nginx is up and running
+#    hosts:
+#      - web1
+#    cron: "*/5 * * * * ?"
+#    notify: sys
+#    module: service
+#    service: nginx
 
 notify:
   sys:
     description: The systems guys
-    email:
+    emails:
       - john.doe@example.com
       - jane.doe@example.com
+
+

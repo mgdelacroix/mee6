@@ -1,5 +1,6 @@
 (ns hal.engine
   (:require [hal.scheduler :as schd]
+            [hal.uuid :as uuid]
             [hal.notifications :as notifications]))
 
 (defrecord Engine [jobs scheduler])
@@ -22,6 +23,7 @@
           notify (get-by-id notify (:notify check))]
       (when (and host notify)
         (assoc check
+               :id (uuid/random)
                :host host
                :notify notify)))))
 
@@ -42,8 +44,6 @@
 
 (defn- job-impl
   [{:keys [module host notify name] :as ctx}]
-  (println "job-impl:" host notify name)
-
   ;; cuando me toca
   ;;  - create ssh session
   ;;  - exec run
@@ -53,11 +53,12 @@
   ;;  - persist result /w timestamp
   (let [[run check] (resolve-module module)
         result (run nil ctx)]
-
+    (println ">>>>>>>>>>>>>>>>>>>>>>>>>")
+    (println result)
 
     ;; TEST FOR ERROR
     (let [status (check result ctx)]
-      (if (= status :red)
+      (when (= status :red)
         (notifications/send-all ctx status)))
     ;; persist
     ))
