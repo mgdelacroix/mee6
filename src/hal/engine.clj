@@ -1,5 +1,6 @@
 (ns hal.engine
-  (:require [hal.scheduler :as schd]))
+  (:require [hal.scheduler :as schd]
+            [hal.notifications :as notifications]))
 
 (defrecord Engine [jobs scheduler])
 
@@ -42,12 +43,9 @@
 
 
     ;; TEST FOR ERROR
-    (case (check result ctx)
-      :green
-      :red
-      ;; notify
-      ;; else notify bad return value
-      )
+    (let [status (check result ctx)]
+      (if (= status :red)
+        (notifications/send-all ctx status)))
     ;; persist
     ))
 
