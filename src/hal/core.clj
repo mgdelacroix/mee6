@@ -2,7 +2,8 @@
   (:require [mount.core :as mount :refer [defstate]]
             [hal.config :as cfg]
             [hal.engine :as ngx]
-            [hal.scheduler :as schd]))
+            [hal.scheduler :as schd]
+            [hal.logging :as log]))
 
 (defstate config
   :start (cfg/load))
@@ -20,12 +21,12 @@
   (if (instance? clojure.lang.ExceptionInfo err)
     (let [message (.getMessage err)
           payload (ex-data err)]
-      (println message)
-      (println payload)
+      (log/err message)
+      (log/err payload)
       (System/exit -1))
 
     (let [message (.getMessage err)]
-      (println message)
+      (log/err message)
       (.printStackTrace err)
       (System/exit -2))))
 

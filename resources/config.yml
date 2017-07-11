@@ -1,3 +1,5 @@
+logfile: /tmp/mee6.log
+
 hosts:
   db:
     hostname: seequestor@web1.london1.sq:22

@@ -12,7 +12,6 @@
 
 (defn- parse-df-line
   [line]
-  (println "parse-df-line:" line)
   (let [[_ capacity-str used-str] (str/split line #"\s+")
         capacity (read-string capacity-str)
         used (read-string used-str)
@@ -44,7 +43,6 @@
   "Check if the result is an error or not, and if the returned
   information triggers any notification"
   [{:keys [threshold] :as ctx} {:keys [percentage] :as result}]
-  (println "disk_usage:check:" ctx result)
   (if (> percentage threshold)
     :red
     :green))

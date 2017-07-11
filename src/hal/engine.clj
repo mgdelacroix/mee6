@@ -1,7 +1,8 @@
 (ns hal.engine
   (:require [hal.scheduler :as schd]
             [hal.uuid :as uuid]
-            [hal.notifications :as notifications]))
+            [hal.notifications :as notifications]
+            [hal.logging :as log]))
 
 (defrecord Engine [jobs scheduler])
 
@@ -90,11 +91,10 @@
   [scheduler config]
   (letfn [(schedule-job [ctx]
             (let [opts (select-keys ctx [:cron :interval])]
-              (println "start$schedule-job" ctx, opts)
               (schd/schedule! scheduler job-impl [ctx] opts)))]
     (let [checks (get-safe-checks config)
           jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
-      (println "jobs" jobs)
+      (log/inf "jobs" jobs)
       (->Engine jobs scheduler))))
 
 (defn stop
