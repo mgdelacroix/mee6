@@ -36,7 +36,8 @@
 
 (defn- build-trigger
   [opts]
-  (let [repeat? (:repeat? opts true)
+  (println "build-trigger" opts)
+  (let [repeat? (:repeat opts true)
         interval (:interval opts 1000)
         cron (:cron opts)
         group (:group opts "hal")
@@ -99,6 +100,7 @@
 (defn schedule!
   ([scheduler f args] (schedule! scheduler f args nil))
   ([scheduler f args opts]
+   (println "schedule!" opts)
    (let [id (uuid/random-str)
          opts (merge {:id id} opts)
          job (build-job-detail f args opts)

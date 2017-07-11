@@ -65,11 +65,14 @@
 (defn start
   "Start the monitoring engine."
   [scheduler config]
-  (let [checks (get-safe-checks config)
-        schedule-job (partial schd/schedule! scheduler job-impl)
-        jobs (reduce #(conj %1 (schedule-job [%2])) [] checks)]
-    (println "jobs" jobs)
-    (->Engine jobs scheduler)))
+  (letfn [(schedule-job [ctx]
+            (let [opts (select-keys ctx [:cron :interval])]
+              (println "start$schedule-job" ctx, opts)
+              (schd/schedule! scheduler job-impl [ctx] opts)))]
+    (let [checks (get-safe-checks config)
+          jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
+      (println "jobs" jobs)
+      (->Engine jobs scheduler))))
 
 (defn stop
   "Stop the monitoring engine."

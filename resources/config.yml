@@ -9,9 +9,9 @@ hosts:
 checks:
   - name: Disk usage on /dev/sda1
     hosts:
-      - db  # supports both hosts and groups
+      - db
       - web1
-    cron: "*/1 * * * *"  # cron expression, not in phase 1
+    cron: "*/5 * * * * ?"
     notify: sys
     module: disk-usage
     device: /dev/sda1
@@ -20,7 +20,7 @@ checks:
   - name: Check if nginx is up and running
     hosts:
       - web1
-    cron: "@daily"
+    cron: "*/5 * * * * ?"
     notify: sys
     module: service
     service: nginx
@@ -28,6 +28,6 @@ checks:
 notify:
   sys:
     description: The systems guys
-    email:  # generic for both yellow and red
+    email:
       - john.doe@example.com
       - jane.doe@example.com
