@@ -22,24 +22,33 @@
      :percentage percentage}))
 
 (defn- process-result
-  [{:keys [device threshold] :as ctx} {:keys [out] :as result}]
+  [{:keys [device threshold] :as ctx} lines]
   ;; TODO: add spec for ctx (specific to this module)
-  (->> (str/lines out)
-       (filter #(match-device? device %))
-       (first)
-       (parse-df-line)))
+  (some->> (str/lines lines)
+           (filter #(match-device? device %))
+           (first)
+           (parse-df-line)))
+
 
 (defn run
-  [session {:keys [host] :as ctx}]
-  (let [result (ssh/run host "df -l")]
-    (if (error? result)
-      result
-      (process-result ctx result))))
+  [{:keys [host device] :as ctx}]
+  (let [{:keys [exit out] :as result} (ssh/run host "df -l")]
+    (if (= exit 0)
+      (if-let [result (process-result ctx out)]
+        result
+        (ex-info (str "Couldn't find device " device) {}))
+
+      (ex-info "Command returned non-zero status" result))))
 
 (defn check
   "Check if the result is an error or not, and if the returned
   information triggers any notification"
-  [{:keys [percentage] :as result} {:keys [threshold] :as ctx} ]
+  [{:keys [threshold] :as ctx} {:keys [percentage] :as result}]
+  (println "disk_usage:check:" ctx result)
   (if (> percentage threshold)
     :red
     :green))
+
+
+
+

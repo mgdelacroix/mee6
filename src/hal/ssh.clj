@@ -8,4 +8,3 @@
   ;;       handle key
   (println "ssh/run" host cmd)
   (apply shell/sh "ssh" hostname (str/split cmd #"\s+")))
-

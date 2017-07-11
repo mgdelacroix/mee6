@@ -9,16 +9,20 @@ hosts:
   entity:
     hostname: entity
 
+  raider:
+    hostname: raider
+
 checks:
   - name: Disk usage on /dev/sda1
     hosts:
       - entity
+      - raider
     cron: "*/5 * * * * ?"
     notify: sys
     module: disk-usage
 #    device: /dev/sda1
     device: tank/data-tomb
-    threshold: 80
+    threshold: 10
 
 #  - name: Check if nginx is up and running
 #    hosts:

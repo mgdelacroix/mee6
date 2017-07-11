@@ -32,6 +32,31 @@
   (->> (get-checks config)
        (filter #(and (:host %) (:notify %)))))
 
+(defn- ex-info?
+  [v]
+  (instance? clojure.lang.ExceptionInfo v))
+
+(defn- exception?
+  [v]
+  (instance? Exception v))
+
+
+(defn- unwrap-exception
+  [e]
+  (let [data {:message (.getMessage e)}]
+    (cond-> data
+      (ex-info? e) (merge (ex-data e)))))
+
+
+(defn- wrap-fvar
+  [fvar]
+  (fn [& [ctx & rest]]
+    (try
+      (apply fvar ctx rest)
+      (catch Exception e
+        (.printStackTrace e)
+        e))))
+
 (defn- resolve-module
   [name]
   (let [ns (str "hal.modules." name)
@@ -40,28 +65,25 @@
     (require (symbol ns))
     (let [run-var (resolve run-symbol)
           check-var (resolve check-symbol)]
-      [run-var check-var])))
+      [(wrap-fvar run-var)
+       (wrap-fvar check-var)])))
+
+(defn- notify-exception
+  [ctx data]
+  (->> (unwrap-exception data)
+       (notifications/send-exception-all ctx)))
 
 (defn- job-impl
   [{:keys [module host notify name] :as ctx}]
-  ;; cuando me toca
-  ;;  - create ssh session
-  ;;  - exec run
-  ;;  - error? if so, notify
-  ;;  - if not, exec check
-  ;;  - notify if proceed
-  ;;  - persist result /w timestamp
   (let [[run check] (resolve-module module)
-        result (run nil ctx)]
-    (println ">>>>>>>>>>>>>>>>>>>>>>>>>")
-    (println result)
-
-    ;; TEST FOR ERROR
-    (let [status (check result ctx)]
-      (when (= status :red)
-        (notifications/send-all ctx status)))
-    ;; persist
-    ))
+        result (run ctx)]
+    (if (exception? result)
+      (notify-exception ctx result)
+      (let [status (check ctx result)]
+        (if (exception? status)
+          (notify-exception ctx status)
+          (when (= status :red)
+            (notifications/send-all ctx status result)))))))
 
 (defn start
   "Start the monitoring engine."
