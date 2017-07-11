@@ -1,5 +1,4 @@
 (ns hal.repl
   (:require [clojure.tools.namespace.repl :as repl]
-            [hal.config :as cfg]))
+            [hal.core :as core]))
 
-;(def cp (cfg/parse "resources/config.yml"))

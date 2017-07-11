@@ -21,7 +21,7 @@ checks:
   - name: Check if nginx is up and running
     hosts:
       - web
-    cron: @daily
+    cron: "@daily"
     notify: sys
     module: service
     service: nginx

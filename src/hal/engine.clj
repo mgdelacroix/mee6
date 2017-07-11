@@ -39,6 +39,8 @@
   ;;  - persist result /w timestamp
   (let [[run check] (resolve-module module)
         result (run nil ctx)]
+
+
     ;; TEST FOR ERROR
     (case (check result ctx)
       :green
