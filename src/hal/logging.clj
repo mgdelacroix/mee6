@@ -13,3 +13,7 @@
 (defmacro err
   [& args]
   `(log/error ~@args))
+
+(defmacro dbg
+  [& args]
+  `(log/debug ~@args))
