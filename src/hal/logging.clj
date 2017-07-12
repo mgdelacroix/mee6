@@ -1,9 +1,15 @@
-(ns hal.logging)
+(ns hal.logging
+  (:require [taoensso.timbre :as log]))
 
-(defn inf
-  [& messages]
-  (apply println messages))
+(log/merge-config!
+ {:timestamp-opts {:pattern "yyyy-MM-dd HH:mm:ss"
+                   :locale :jvm-default
+                   :timezone :utc}})
 
-(defn err
-  [& messages]
-  (apply println messages))
+(defmacro inf
+  [& args]
+  `(log/info ~@args))
+
+(defmacro err
+  [& args]
+  `(log/error ~@args))
