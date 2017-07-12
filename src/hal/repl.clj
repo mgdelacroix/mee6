@@ -1,7 +1,8 @@
 (ns hal.repl
   (:require [clojure.tools.namespace.repl :as repl]
             [mount.core :as mount]
-            [hal.core :as core]))
+            [hal.core :as core]
+            [hal.config :as cfg]))
 
 (defn start
   []

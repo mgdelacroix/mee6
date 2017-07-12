@@ -37,9 +37,31 @@
                                               :notify/emails]))
 
 (s/def :config/notify (s/map-of keyword? :config/single-notify))
+
+(s/def :mail/from string?)
+(s/def :mail/mode string?)
+(s/def :mail/host string?)
+(s/def :mail/user string?)
+(s/def :mail/pass string?)
+(s/def :mail/ssl boolean?)
+(s/def :mail/tls boolean?)
+(s/def :mail/port int?)
+
+(s/def :config/mail
+  (s/or :local
+        (s/and (s/keys :req-un [:mail/from :mail/mode])
+               #(#{"console" "local"} (:mode %)))
+        :smtp
+        (s/and (s/keys :req-un [:mail/from :mail/mode]
+                       :opt-un [:mail/user :mail/pass :mail/ssl :mail/tls :mail/port])
+               #(= (:mode %) "smtp")
+               #(not (and (:ssl %)
+                          (:tls %))))))
+
 (s/def ::config (s/keys :req-un [:config/hosts
                                  :config/checks
-                                 :config/notify]))
+                                 :config/notify
+                                 :config/mail]))
 
 ;; --- Configuration file validation and loading
 
