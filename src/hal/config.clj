@@ -67,13 +67,11 @@
 
 (defn- validate
   [data]
-  (let [result (s/conform ::config data)]
-    (when (= result ::s/invalid)
-      (exc/raise :message "Invalid configuration."
-                 :type :validation
-                 :explain (s/explain-str ::config data)))
-
-    result))
+  (when-not (s/valid? ::config data)
+    (exc/raise :message "Invalid configuration."
+               :type :validation
+               :explain (s/explain-str ::config data)))
+  data)
 
 (defn load
   []
@@ -83,8 +81,8 @@
       (validate)))
 
 (defn config?
-  [v]
-  (s/valid? ::config v))
+  [val]
+  (s/valid? ::config val))
 
 (defstate config
   :start (load))
