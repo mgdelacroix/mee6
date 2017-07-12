@@ -1,33 +1,44 @@
 (ns hal.modules.disk-usage
-  (:require [hal.ssh :as ssh]
-            [cuerdas.core :as str]))
+  "Disk usage monitoring module."
+  (:require [clojure.spec.alpha :as s]
+            [cuerdas.core :as str]
+            [hal.ssh :as ssh]))
 
-(defn- error?
-  [{:keys [exit]}]
-  (not= exit 0))
+;; --- Spec
 
-(defn- match-device?
-  [device line]
-  (str/starts-with? line device))
+(s/def ::device string?)
+(s/def ::threshold int?)
+(s/def ::contex
+  (s/merge :config/check
+           (s/keys :req-un [::device ::threshold])))
 
-(defn- parse-df-line
-  [line]
-  (let [[_ capacity-str used-str] (str/split line #"\s+")
-        capacity (read-string capacity-str)
-        used (read-string used-str)
-        percentage (quot (* used 100) capacity)]
-    {:capacity capacity
-     :used used
-     :percentage percentage}))
+;; --- Impl
 
 (defn- process-result
+  "Process the df command output."
   [{:keys [device threshold] :as ctx} lines]
-  ;; TODO: add spec for ctx (specific to this module)
-  (some->> (str/lines lines)
-           (filter #(match-device? device %))
-           (first)
-           (parse-df-line)))
+  {:pre [(s/valid? ::contex ctx)]}
+  (letfn [(parse-line [line]
+            (let [parts (str/split line #"\s+")]
+              (when (>= (count parts) 3)
+                [(nth parts 1)
+                 (nth parts 2)])))
+          (format [[capacity used]]
+            (let [capacity (read-string capacity)
+                  used (read-string used)
+                  percentage (quot (* used 100) capacity)]
+              {:capacity capacity
+               :used used
+               :percentage percentage}))
+          (match-device? [line]
+            (str/starts-with? line device))]
+    (some->> (str/lines lines)
+             (filter match-device?)
+             (first)
+             (parse-line)
+             (format))))
 
+;; --- API
 
 (defn run
   [{:keys [host device] :as ctx}]
