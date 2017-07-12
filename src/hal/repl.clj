@@ -15,4 +15,4 @@
 (defn restart
   []
   (stop)
-  (repl/refresh :after 'user/start))
+  (repl/refresh :after 'hal.repl/start))
