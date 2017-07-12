@@ -1,6 +1,7 @@
 (ns hal.config
   (:refer-clojure :exclude [load])
-  (:require [clojure.walk :refer [keywordize-keys]]
+  (:require [mount.core :as mount :refer [defstate]]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.spec.alpha :as s]
             [clojure.pprint :refer [pprint]]
             [environ.core :refer [env]]
@@ -58,3 +59,6 @@
       (yaml/from-file)
       (keywordize-keys)
       (validate)))
+
+(defstate config
+  :start (load))

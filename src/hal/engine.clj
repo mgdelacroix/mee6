@@ -1,5 +1,7 @@
 (ns hal.engine
-  (:require [hal.scheduler :as schd]
+  (:require [mount.core :as mount :refer [defstate]]
+            [hal.scheduler :as schd]
+            [hal.config :as cfg]
             [hal.uuid :as uuid]
             [hal.notifications :as notifications]
             [hal.logging :as log]))
@@ -102,3 +104,7 @@
   [{:keys [jobs scheduler] :as engine}]
   (let [unschedule-job (partial schd/unschedule! scheduler)]
     (run! unschedule-job jobs)))
+
+(defstate engine
+  :start (start schd/scheduler cfg/config)
+  :stop (stop engine))

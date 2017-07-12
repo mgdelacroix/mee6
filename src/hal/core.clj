@@ -5,17 +5,6 @@
             [hal.scheduler :as schd]
             [hal.logging :as log]))
 
-(defstate config
-  :start (cfg/load))
-
-(defstate scheduler
-  :start (schd/start)
-  :stop (schd/stop scheduler))
-
-(defstate engine
-  :start (ngx/start scheduler config)
-  :stop (ngx/stop engine))
-
 (defn- handle-error
   [err]
   (if (instance? clojure.lang.ExceptionInfo err)
@@ -37,4 +26,3 @@
     (catch Exception e
       (let [cause (.getCause e)]
         (handle-error cause)))))
-

@@ -1,5 +1,6 @@
 (ns hal.scheduler
-  (:require [hal.uuid :as uuid])
+  (:require [mount.core :as mount :refer [defstate]]
+            [hal.uuid :as uuid])
   (:import java.util.Properties
            org.quartz.Scheduler
            org.quartz.SchedulerException
@@ -112,3 +113,7 @@
   (let [key (JobKey. jobid "hal")]
     (.deleteJob scheduler key)
     nil))
+
+(defstate scheduler
+  :start (start)
+  :stop (stop scheduler))
