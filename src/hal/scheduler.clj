@@ -111,8 +111,10 @@
   [scheduler jobid]
   {:pre [(string? jobid)]}
   (let [key (JobKey. jobid "hal")]
-    (.deleteJob scheduler key)
-    nil))
+    (try
+      (.deleteJob scheduler key)
+      (catch org.quartz.SchedulerException e
+        nil))))
 
 (defstate scheduler
   :start (start)
