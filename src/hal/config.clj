@@ -82,5 +82,9 @@
       (keywordize-keys)
       (validate)))
 
+(defn config?
+  [v]
+  (s/valid? ::config v))
+
 (defstate config
   :start (load))
