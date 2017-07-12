@@ -47,7 +47,6 @@
       (if-let [result (process-result ctx out)]
         result
         (ex-info (str "Couldn't find device " device) {}))
-
       (ex-info "Command returned non-zero status" result))))
 
 (defn check
@@ -57,7 +56,3 @@
   (if (> percentage threshold)
     :red
     :green))
-
-
-
-
