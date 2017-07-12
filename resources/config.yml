@@ -1,5 +1,3 @@
-logfile: /tmp/mee6.log
-
 hosts:
   db:
     hostname: seequestor@web1.london1.sq:22
@@ -44,3 +42,14 @@ notify:
     description: Testing
     emails:
       - me@example.com
+
+mail:
+  from: mee6@example.com
+  mode: console  # local /smtp / console
+  # if SMTP
+  # host: smtp.gmail.com
+  # user: myusername
+  # pass: mypassword
+  # ssl: true  # default false, if true defaults to port 465
+  # tsl: true  # default false, if true defaults to port 25
+  # port: 465  # default to 25 I guess or depending on ssl&tls

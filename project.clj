@@ -13,6 +13,8 @@
                  [io.forward/yaml "1.0.6"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
-                 [funcool/cuerdas "2.0.3"]]
+                 [funcool/cuerdas "2.0.3"]
+                 [com.draines/postal "2.0.2"]
+                 [hiccup "1.0.5"]]
   :profiles {:dev {:main ^:skip-aot hal.repl}
              :prod {:main ^:skip-aot hal.core}})
