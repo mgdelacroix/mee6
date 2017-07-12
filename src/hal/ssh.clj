@@ -4,6 +4,5 @@
 
 (defn run
   [{:keys [hostname key] :as host} cmd]
-  ;; TODO: add spec for host
-  ;;       handle key
-  (apply shell/sh "ssh" hostname (str/split cmd #"\s+")))
+  (apply shell/sh "timeout" "5" "ssh"
+         hostname (str/split cmd #"\s+")))
