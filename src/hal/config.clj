@@ -47,6 +47,10 @@
 (s/def :mail/tls boolean?)
 (s/def :mail/port int?)
 
+(s/def :http/port int?)
+(s/def :config/http
+  (s/keys :req-un [:http/port]))
+
 (s/def :config/mail
   (s/or :local
         (s/and (s/keys :req-un [:mail/from :mail/mode])
@@ -61,7 +65,8 @@
 (s/def ::config (s/keys :req-un [:config/hosts
                                  :config/checks
                                  :config/notify
-                                 :config/mail]))
+                                 :config/mail
+                                 :config/http]))
 
 ;; --- Configuration file validation and loading
 

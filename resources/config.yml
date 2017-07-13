@@ -53,3 +53,7 @@ mail:
   # ssl: true  # default false, if true defaults to port 465
   # tsl: true  # default false, if true defaults to port 25
   # port: 465  # default to 25 I guess or depending on ssl&tls
+
+
+http:
+  port: 3001
