@@ -92,10 +92,10 @@
 
 (defn- notify-normal
   [{:keys [id] :as ctx} curr-status result]
-  (let [{prev-status :status} (get @state id)]
-    (swap! state assoc id {:status curr-status
-                           :result result
-                           :updated-at (Instant/now)})
+  (let [{prev-status :status} (get-in @state [:current id])]
+    (swap! state assoc-in [:current id] {:status curr-status
+                                         :result result
+                                         :updated-at (Instant/now)})
     (if prev-status
       (when (not= prev-status curr-status)
         (notifications/send-all ctx curr-status result))
@@ -137,6 +137,7 @@
     (log/inf "Starting monitoring engine.")
     (let [checks (get-safe-checks config)
           jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
+      (swap! state assoc :checks checks)
       (log/inf "Started" (count jobs) "jobs.")
       {:jobs jobs
        :scheduler scheduler})))
