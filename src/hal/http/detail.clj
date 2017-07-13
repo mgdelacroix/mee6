@@ -1,5 +1,6 @@
 (ns hal.http.detail
   (:require [clojure.java.io :as io]
+            [cuerdas.core :as str]
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [yaml.core :as yaml]
@@ -36,17 +37,19 @@
       [:section.code
        [:pre (dump-yaml normal-out)]]
 
-      (when-let [out (:out special-out)]
-        [:div
-         [:h3 "Output:"]
-         [:section.code
-          [:pre out]]])
+      (let [out (:out special-out)]
+        (if (and (string? out) (not (str/empty? out)))
+          [:div
+           [:h3 "Output:"]
+           [:section.code
+            [:pre out]]]))
 
-      (when-let [err (:err special-out)]
-        [:div
-         [:h3 "Error:"]
-         [:section.code
-          [:pre err]]])
+      (let [err (:err special-out)]
+        (if (and (string? err) (not (str/empty? err)))
+          [:div
+           [:h3 "Error:"]
+           [:section.code
+            [:pre err]]]))
 
       [:h3 "Check configuration:"]
       [:section.code
