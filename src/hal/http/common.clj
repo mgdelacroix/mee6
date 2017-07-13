@@ -16,5 +16,6 @@
   [state]
   [:header
    [:span.logo]
-   [:h1.logo-name "Mee6"]
+   [:h1.logo-name
+    [:a {:href "/"} "Mee6"]]
    [:p.tagline "I'm Mr. Meeseeks! Look at me!"]])
