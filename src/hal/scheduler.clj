@@ -95,7 +95,7 @@
 
 (defn stop
   [scheduler]
-  (.shutdown ^Scheduler scheduler true))
+  (.shutdown ^Scheduler scheduler false))
 
 (defn schedule!
   ([scheduler f args] (schedule! scheduler f args nil))
