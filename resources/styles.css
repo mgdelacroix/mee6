@@ -77,6 +77,10 @@ section {
     border-left: 10px solid #9dce0a;
     margin-top: 1rem;
 }
+.item a {
+    text-decoration: none;
+    color: black;
+}
 .item-ko {
     background-color: #f1d1d8;
     border-left-color: #fa5e59;

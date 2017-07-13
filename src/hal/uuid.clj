@@ -7,3 +7,9 @@
 (defn random-str
   []
   (str (random)))
+
+(defn from-string
+  "Parse string uuid representation into proper UUID instance."
+  [s]
+  (java.util.UUID/fromString s))
+

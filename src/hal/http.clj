@@ -7,16 +7,28 @@
 
 ;; --- Router
 
-(defn not-found
-  [request]
-  {:body "not found"})
+(declare not-found)
+
+(def routes
+  [[#"^/$" #'home/handler]
+   [#"^/detail/([^\/]+)" #'detail/handler]])
 
 (defn router
   [{:keys [uri] :as request}]
-  (cond
-    (re-matches #"^/$" uri) (home/handler request)
-    (re-matches #"^/detail/[^\/]+" uri) (detail/handler request)
-    :else (not-found request)))
+  (let [response (reduce (fn [acc [re handler]]
+                           (when-let [matches (re-matches re uri)]
+                             (-> (assoc request :matches matches)
+                                 (handler)
+                                 (reduced))))
+                         nil
+                         routes)]
+    (if (nil? response)
+      (not-found request)
+      response)))
+
+(defn not-found
+  [request]
+  {:body "not found"})
 
 ;; --- API
 

@@ -91,28 +91,28 @@
        (notifications/send-exception-all ctx)))
 
 (defn- notify-normal
-  [{:keys [id] :as ctx} curr-status result]
-  (let [{prev-status :status} (get-in @state [:current id])]
-    (swap! state assoc-in [:current id] {:status curr-status
-                                         :result result
+  [{:keys [id] :as ctx} curr-status output]
+  (let [{prev-status :status} (get-in @state [:results id])]
+    (swap! state assoc-in [:results id] {:status curr-status
+                                         :output output
                                          :updated-at (Instant/now)})
     (if prev-status
       (when (not= prev-status curr-status)
-        (notifications/send-all ctx curr-status result))
+        (notifications/send-all ctx curr-status output))
       (when (not= curr-status :green)
-        (notifications/send-all ctx curr-status result)))))
+        (notifications/send-all ctx curr-status output)))))
 
 (defn- check-runner
   "A function executed by the quartz job to run the check."
   [{:keys [id module host notify name] :as ctx}]
   (let [[run check] (resolve-module module)
-        result (run ctx)]
-    (if (exception? result)
-      (notify-exception ctx result)
-      (let [status (check ctx result)]
+        output (run ctx)]
+    (if (exception? output)
+      (notify-exception ctx output)
+      (let [status (check ctx output)]
         (if (exception? status)
           (notify-exception ctx status)
-          (notify-normal ctx status result))))))
+          (notify-normal ctx status output))))))
 
 (defn- logged-check-runner
   [{:keys [id name host] :as ctx}]

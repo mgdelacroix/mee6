@@ -12,6 +12,9 @@ hosts:
   raider:
     hostname: raider
 
+  uxbox-app:
+    hostname: uxbox-demo
+
 checks:
 #  - name: Disk usage on /dev/sda1
 #    hosts:
@@ -34,7 +37,7 @@ checks:
 
   - name: Check debian version
     hosts:
-      - raider
+      - uxbox-app
     cron: "*/5 * * * * ?"
     notify: test
     module: script
