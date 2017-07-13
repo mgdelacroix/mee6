@@ -19,7 +19,7 @@
 
 ;; --- Impl
 
-(defn engine?
+(defn- engine?
   [v]
   (s/valid? ::engine v))
 

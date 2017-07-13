@@ -11,6 +11,7 @@
                  [org.quartz-scheduler/quartz "2.2.3"]
                  [org.quartz-scheduler/quartz-jobs "2.2.3"]
                  [io.forward/yaml "1.0.6"]
+                 [ring "1.6.1"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
                  [funcool/cuerdas "2.0.3"]

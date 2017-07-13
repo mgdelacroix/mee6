@@ -1,8 +1,9 @@
 (ns hal.core
   (:require [mount.core :as mount :refer [defstate]]
             [hal.config :as cfg]
-            [hal.scheduler :as schd]
             [hal.engine :as ngx]
+            [hal.scheduler]
+            [hal.http]
             [hal.logging :as log]))
 
 (defn- handle-error
