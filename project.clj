@@ -1,4 +1,4 @@
-(defproject hal "0.1.0-SNAPSHOT"
+(defproject mee6 "0.1.0-SNAPSHOT"
   :description "A simple monitoring tool"
   :url ""
   :license {:name "MIT"
@@ -18,7 +18,7 @@
                  [com.draines/postal "2.0.2"]
                  [hiccup "1.0.5"]]
   :profiles
-  {:dev {:main ^:skip-aot hal.repl}
-   :prod {:main ^:skip-aot hal.core}
-   :uberjar {:main hal.core :aot :all}
+  {:dev {:main ^:skip-aot mee6.repl}
+   :prod {:main ^:skip-aot mee6.core}
+   :uberjar {:main mee6.core :aot :all}
    })

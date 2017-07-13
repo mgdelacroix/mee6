@@ -1,4 +1,4 @@
-(ns hal.ssh
+(ns mee6.ssh
   (:require [clojure.java.shell :as shell]
             [clojure.string :as str]))
 

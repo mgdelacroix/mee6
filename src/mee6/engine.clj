@@ -1,14 +1,14 @@
-(ns hal.engine
+(ns mee6.engine
   "Monitoring engine namespace."
   (:require [clojure.spec.alpha :as s]
             [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
-            [hal.state :refer [state]]
-            [hal.scheduler :as schd]
-            [hal.config :as cfg]
-            [hal.uuid :as uuid]
-            [hal.notifications :as notifications]
-            [hal.logging :as log])
+            [mee6.state :refer [state]]
+            [mee6.scheduler :as schd]
+            [mee6.config :as cfg]
+            [mee6.uuid :as uuid]
+            [mee6.notifications :as notifications]
+            [mee6.logging :as log])
   (:import java.time.Instant))
 
 ;; --- Spec
@@ -61,8 +61,7 @@
 
 (defn- unwrap-exception
   [e]
-  (let [data {:message (.getMessage e)
-              :out (with-out-str (clojure.stacktrace/print-stack-trace e))}]
+  (let [data {:message (.getMessage e)}]
     (cond-> data
       (ex-info? e) (merge (ex-data e)))))
 
@@ -77,7 +76,7 @@
 (defn- resolve-module
   "Resolve the module and return the `run` and `check` functions."
   [name]
-  (let [ns (str "hal.modules." name)
+  (let [ns (str "mee6.modules." name)
         run-symbol (symbol (str ns "/run"))
         check-symbol (symbol (str ns "/check"))]
     (require (symbol ns))
@@ -88,15 +87,11 @@
 
 (defn- notify-exception
   [{:keys [id] :as ctx} exception]
-  (let [{prev-status :status} (get-in @state [:results id])
-        data (unwrap-exception exception)]
+  (let [data (unwrap-exception exception)]
     (swap! state assoc-in [:results id] {:status :grey
                                          :output data
                                          :updated-at (Instant/now)})
-
-    (when (or (not prev-status)
-              (not= prev-status :grey))
-      (notifications/send-exception-all ctx data))))
+    (notifications/send-exception-all ctx data)))
 
 (defn- notify-normal
   [{:keys [id] :as ctx} curr-status output]

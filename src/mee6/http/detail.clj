@@ -1,13 +1,13 @@
-(ns hal.http.detail
+(ns mee6.http.detail
   (:require [clojure.java.io :as io]
             [cuerdas.core :as str]
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [yaml.core :as yaml]
-            [hal.uuid :as uuid]
-            [hal.state :refer [state]]
-            [hal.http.common :refer [html-head body-header]]
-            [hal.http.home :refer [body-content-summary body-content-item]]))
+            [mee6.uuid :as uuid]
+            [mee6.state :refer [state]]
+            [mee6.http.common :refer [html-head body-header]]
+            [mee6.http.home :refer [body-content-summary body-content-item]]))
 
 (defn dump-yaml
   [value]
@@ -24,10 +24,7 @@
   (let [{:keys [name host cron] :as check} (get-check checks id)
         {:keys [status output updated-at] :as result} (get results id)
         special-out (select-keys output [:out :err :exit])
-        normal-out (if (:humanized output)
-                     (:humanized output)
-                     (dissoc output :out :err :exit))]
-
+        normal-out (dissoc output :out :err :exit)]
 
     [:div.content
      [:section#items
@@ -71,5 +68,6 @@
   (let [state (deref state)
         [uri sid] matches
         id (uuid/from-string sid)]
+    (println "handler" id)
     {:body (page state id)
      :status 200}))

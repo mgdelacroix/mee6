@@ -1,4 +1,4 @@
-(ns hal.config
+(ns mee6.config
   (:refer-clojure :exclude [load])
   (:require [mount.core :as mount :refer [defstate]]
             [clojure.walk :refer [keywordize-keys]]
@@ -6,7 +6,7 @@
             [clojure.pprint :refer [pprint]]
             [environ.core :refer [env]]
             [yaml.core :as yaml]
-            [hal.exceptions :as exc]))
+            [mee6.exceptions :as exc]))
 
 ;; --- Configuration file spec.
 
@@ -80,7 +80,7 @@
 
 (defn load
   []
-  (-> (get env :hal-config "resources/config.yml")
+  (-> (get env :mee6-config "resources/config.yml")
       (yaml/from-file)
       (keywordize-keys)
       (validate)))

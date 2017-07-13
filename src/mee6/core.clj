@@ -1,10 +1,10 @@
-(ns hal.core
+(ns mee6.core
   (:require [mount.core :as mount :refer [defstate]]
-            [hal.config :as cfg]
-            [hal.engine :as ngx]
-            [hal.scheduler]
-            [hal.http]
-            [hal.logging :as log])
+            [mee6.config :as cfg]
+            [mee6.engine :as ngx]
+            [mee6.scheduler]
+            [mee6.http]
+            [mee6.logging :as log])
   (:gen-class))
 
 (defn- handle-error

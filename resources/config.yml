@@ -1,71 +1,59 @@
 hosts:
-  db:
-    hostname: seequestor@web1.london1.sq:22
-    key: ~/.ssh/id_rsa
-
-  web1:
-    hostname: mysshconfigname
-
-  entity:
-    hostname: entity
-
-  raider:
-    hostname: raider
-
-  uxbox-app:
-    hostname: uxbox-demo
+  targaryen:
+    hostname: targaryen
 
 checks:
-#  - name: Disk usage on /dev/sda1
+  - name: disk usage on /dev/md1
+    hosts:
+      - targaryen
+    cron: "*/5 * * * * ?"
+    notify: sys
+    module: disk-usage
+    device: /dev/md1
+    threshold: 80
+
+  - name: docker service
+    hosts:
+      - targaryen
+    cron: "*/5 * * * * ?"
+    notify: sys
+    module: service
+    service: docker
+
+  - name: special script
+    hosts:
+      - targaryen
+    cron: "*/5 * * * * ?"
+    notify: sys
+    module: script
+    file: /tmp/myscript
+
+#  - name: check if nginx is up and running
 #    hosts:
-#      - entity
-#      - raider
-#    cron: "*/5 * * * * ?"
-#    notify: sys
-#    module: disk-usage
-##    device: /dev/sda1
-#    device: tank/data-tomb
-#    threshold: 10
-#
-#  - name: Check if nginx is up and running
-#    hosts:
-#      - raider
+#      - baoqu
 #    cron: "*/5 * * * * ?"
 #    notify: test
 #    module: service
 #    service: nginx
-
-  - name: Check debian version
-    hosts:
-      - uxbox-app
-    cron: "*/5 * * * * ?"
-    notify: test
-    module: script
-    file: /tmp/myscript
-    # args: noneeded
+#
+#  - name: say hi
+#    hosts:
+#      - entity
+#    cron: "*/5 * * * * ?"
+#    notify: test
+#    module: script
+#    file: /tmp/myscript
+#    # args: noneeded
 
 notify:
   sys:
-    description: The systems guys
-    emails:
-      - john.doe@example.com
-      - jane.doe@example.com
-  test:
-    description: Testing
+    description: we rock!
     emails:
       - me@example.com
 
 mail:
   from: mee6@example.com
   mode: console  # local /smtp / console
-  # if SMTP
-  # host: smtp.gmail.com
-  # user: myusername
-  # pass: mypassword
-  # ssl: true  # default false, if true defaults to port 465
-  # tsl: true  # default false, if true defaults to port 25
-  # port: 465  # default to 25 I guess or depending on ssl&tls
-
 
 http:
   port: 3001

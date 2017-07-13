@@ -1,9 +1,9 @@
-(ns hal.http
+(ns mee6.http
   (:require [mount.core :refer [defstate]]
             [ring.adapter.jetty :as jetty]
-            [hal.config :as cfg]
-            [hal.http.home :as home]
-            [hal.http.detail :as detail]))
+            [mee6.config :as cfg]
+            [mee6.http.home :as home]
+            [mee6.http.detail :as detail]))
 
 ;; --- Router
 

@@ -1,4 +1,4 @@
-(ns hal.exceptions)
+(ns mee6.exceptions)
 
 (defn error
   [& {:keys [type message] :or {type :unexpected} :as payload}]

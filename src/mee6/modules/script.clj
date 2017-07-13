@@ -1,5 +1,5 @@
-(ns hal.modules.script
-  (:require [hal.ssh :as ssh]
+(ns mee6.modules.script
+  (:require [mee6.ssh :as ssh]
             [clojure.java.io :as io]
             [cuerdas.core :as str]))
 

@@ -1,4 +1,4 @@
-(ns hal.http.common
+(ns mee6.http.common
   (:require [clojure.java.io :as io]
             [cuerdas.core :as str]))
 
@@ -16,6 +16,5 @@
   [state]
   [:header
    [:span.logo]
-   [:h1.logo-name
-    [:a {:href "/"} "Mee6"]]
+   [:h1.logo-name "Mee6"]
    [:p.tagline "I'm Mr. Meeseeks! Look at me!"]])

@@ -1,6 +1,6 @@
-(ns hal.scheduler
+(ns mee6.scheduler
   (:require [mount.core :as mount :refer [defstate]]
-            [hal.uuid :as uuid])
+            [mee6.uuid :as uuid])
   (:import java.util.Properties
            org.quartz.Scheduler
            org.quartz.SchedulerException
@@ -40,7 +40,7 @@
   (let [repeat? (:repeat opts true)
         interval (:interval opts 1000)
         cron (:cron opts)
-        group (:group opts "hal")
+        group (:group opts "mee6")
         schdl (if cron
                 (CronScheduleBuilder/cronSchedule cron)
                 (let [schdl (SimpleScheduleBuilder/simpleSchedule)
@@ -58,7 +58,7 @@
 (defn- build-job-detail
   [f args opts]
   (let [state (:state opts)
-        group (:group opts "hal")
+        group (:group opts "mee6")
         id    (str (:id opts))
         data  {"callable" f
                "arguments" (into [] args)
@@ -71,7 +71,7 @@
 
 (defn- make-scheduler-props
   [{:keys [name daemon? threads thread-priority]
-    :or {name "hal-scheduler"
+    :or {name "mee6-scheduler"
          daemon? true
          threads 1
          thread-priority Thread/MIN_PRIORITY}}]
@@ -110,7 +110,7 @@
 (defn unschedule!
   [scheduler jobid]
   {:pre [(string? jobid)]}
-  (let [key (JobKey. jobid "hal")]
+  (let [key (JobKey. jobid "mee6")]
     (try
       (.deleteJob scheduler key)
       (catch org.quartz.SchedulerException e

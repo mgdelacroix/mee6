@@ -1,4 +1,4 @@
-(ns hal.logging
+(ns mee6.logging
   (:require [taoensso.timbre :as log]))
 
 (log/merge-config!
@@ -9,7 +9,7 @@
 (defn disable
   []
   (log/merge-config!
-   {:ns-blacklist ["hal.*"]}))
+   {:ns-blacklist ["mee6.*"]}))
 
 (defn enable
   []

@@ -1,9 +1,9 @@
-(ns hal.repl
+(ns mee6.repl
   (:require [clojure.tools.namespace.repl :as repl]
             [mount.core :as mount]
-            [hal.logging :as log]
-            [hal.core :as core]
-            [hal.config :as cfg]))
+            [mee6.logging :as log]
+            [mee6.core :as core]
+            [mee6.config :as cfg]))
 
 (defn start
   []
@@ -16,4 +16,4 @@
 (defn restart
   []
   (stop)
-  (repl/refresh :after 'hal.repl/start))
+  (repl/refresh :after 'mee6.repl/start))

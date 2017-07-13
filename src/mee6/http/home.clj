@@ -1,10 +1,10 @@
-(ns hal.http.home
+(ns mee6.http.home
   (:require [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [cuerdas.core :as str]
-            [hal.state :refer [state]]
-            [hal.http.common :refer [html-head body-header]]))
+            [mee6.state :refer [state]]
+            [mee6.http.common :refer [html-head body-header]]))
 
 (defn body-content-item
   [{:keys [id name host cron] :as check} {:keys [status updated-at] :as result}]

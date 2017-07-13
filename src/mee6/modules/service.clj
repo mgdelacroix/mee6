@@ -1,5 +1,5 @@
-(ns hal.modules.service
-  (:require [hal.ssh :as ssh]))
+(ns mee6.modules.service
+  (:require [mee6.ssh :as ssh]))
 
 (defn get-last-log
   [host service]

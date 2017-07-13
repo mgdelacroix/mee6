@@ -1,4 +1,4 @@
-(ns hal.uuid)
+(ns mee6.uuid)
 
 (defn random
   []
@@ -12,4 +12,3 @@
   "Parse string uuid representation into proper UUID instance."
   [s]
   (java.util.UUID/fromString s))
-

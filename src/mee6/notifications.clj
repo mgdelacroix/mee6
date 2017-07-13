@@ -1,6 +1,6 @@
-(ns hal.notifications
-  (:require [hal.logging :as log]
-            [hal.config :as cfg]
+(ns mee6.notifications
+  (:require [mee6.logging :as log]
+            [mee6.config :as cfg]
             [hiccup.core :refer [html]]
             [postal.core :as postal])
   (:refer-clojure :exclude [send]))
