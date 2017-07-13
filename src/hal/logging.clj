@@ -6,6 +6,16 @@
                    :locale :jvm-default
                    :timezone :utc}})
 
+(defn disable
+  []
+  (log/merge-config!
+   {:ns-blacklist ["hal.*"]}))
+
+(defn enable
+  []
+  (log/merge-config!
+   {:ns-blacklist []}))
+
 (defmacro inf
   [& args]
   `(log/info ~@args))
