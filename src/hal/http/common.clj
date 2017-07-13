@@ -17,5 +17,4 @@
   [:header
    [:span.logo]
    [:h1.logo-name "Mee6"]
-   [:p.tagline "Hola! Soy el señor Meeseeks! Miradme!"]])
-
+   [:p.tagline "I'm Mr. Meeseeks! Look at me!"]])

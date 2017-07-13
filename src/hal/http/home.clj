@@ -49,7 +49,7 @@
   [:div.content
    [:section#items
     (body-content-summary state)
-    [:h2 "INSTANCIAS"]
+    [:h2 "INSTANCES"]
     [:ul.list.items
      (for [item checks
            :let [result (get results (:id item))]]
@@ -68,4 +68,3 @@
   (let [state (deref state)]
     {:body (page state)
      :status 200}))
-
