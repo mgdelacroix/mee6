@@ -1,0 +1,12 @@
+[Unit]
+Description=Mee6, a simple monitoring tool
+After=network.target
+
+[Service]
+ExecStart=<PATH_TO_JAVA> -jar <PATH_TO_MEE6_JAR_FILE>
+Environment=MEE6_CONFIG=<PATH_TO_MEE6_CONFIG_FILE>
+SuccessExitStatus=143
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

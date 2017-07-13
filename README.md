@@ -45,6 +45,25 @@ check is not `green` when the tool starts, or if it status changes.
 
 ![Mee6](https://i.ytimg.com/vi/QrQZg-gNC_k/maxresdefault.jpg)
 
+## Execution and installation
+
+To run `Mee6`, you just need its `jar` file and a config file. To
+start executing the application, run:
+
+```sh
+MEE6_CONFIG=/path/to/my/config.yaml java -jar mee6.jar
+```
+
+If your operative system uses `systemd` to manage the services, you
+can copy the `resources/mee6.service` to `/etc/systemd/system` and
+replace the placeholders it has to suit your installation. Then run:
+
+```sh
+systemctl daemon-reload
+systemctl start mee6
+systemctl enable mee6  # to run it every time the system boots
+```
+
 ## Config file
 
 The configuration file is a `yaml` file with the following blocks:
@@ -201,7 +220,5 @@ will be disabled.
 http:
   port: 3001
 ```
-
-## Installation
 
 ## Development
