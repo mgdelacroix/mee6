@@ -13,7 +13,7 @@
 
 (def defaults
   {:port 3000
-   :daemon? true
+   :daemon? false
    :join? false})
 
 (defn start

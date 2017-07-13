@@ -4,7 +4,8 @@
             [hal.engine :as ngx]
             [hal.scheduler]
             [hal.http]
-            [hal.logging :as log]))
+            [hal.logging :as log])
+  (:gen-class))
 
 (defn- handle-error
   [err]

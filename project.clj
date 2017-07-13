@@ -17,5 +17,8 @@
                  [funcool/cuerdas "2.0.3"]
                  [com.draines/postal "2.0.2"]
                  [hiccup "1.0.5"]]
-  :profiles {:dev {:main ^:skip-aot hal.repl}
-             :prod {:main ^:skip-aot hal.core}})
+  :profiles
+  {:dev {:main ^:skip-aot hal.repl}
+   :prod {:main ^:skip-aot hal.core}
+   :uberjar {:main hal.core :aot :all}
+   })
