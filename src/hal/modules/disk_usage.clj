@@ -1,5 +1,6 @@
 (ns hal.modules.disk-usage
   "Disk usage monitoring module."
+  (:refer-clojure :exclude [format])
   (:require [clojure.spec.alpha :as s]
             [cuerdas.core :as str]
             [hal.ssh :as ssh]))

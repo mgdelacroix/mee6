@@ -8,6 +8,10 @@
             [hal.http.common :refer [html-head body-header]]
             [hal.http.home :refer [body-content-summary body-content-item]]))
 
+(defn dump-yaml
+  [value]
+  (yaml/generate-string value :dumper-options {:flow-style :block}))
+
 (defn get-check
   [checks id]
   (->> checks
@@ -17,7 +21,10 @@
 (defn body-content
   [{:keys [checks results] :as state} id]
   (let [{:keys [name host cron] :as check} (get-check checks id)
-        {:keys [status output updated-at] :as result} (get results id)]
+        {:keys [status output updated-at] :as result} (get results id)
+        special-out (select-keys output [:out :err :exit])
+        normal-out (dissoc output :out :err :exit)]
+
     [:div.content
      [:section#items
       (body-content-summary state)
@@ -27,11 +34,23 @@
 
       [:h3 "Latest output:"]
       [:section.code
-       [:pre (with-out-str (pprint output))]]
+       [:pre (dump-yaml normal-out)]]
+
+      (when-let [out (:out special-out)]
+        [:div
+         [:h3 "Output:"]
+         [:section.code
+          [:pre out]]])
+
+      (when-let [err (:err special-out)]
+        [:div
+         [:h3 "Error:"]
+         [:section.code
+          [:pre err]]])
 
       [:h3 "Check configuration:"]
       [:section.code
-       [:pre (yaml/generate-string (dissoc check :hosts :id))]]]]))
+       [:pre (dump-yaml (dissoc check :hosts :id))]]]]))
 
 (defn- page
   [state id]

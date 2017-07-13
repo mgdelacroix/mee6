@@ -1,6 +1,7 @@
 (ns hal.repl
   (:require [clojure.tools.namespace.repl :as repl]
             [mount.core :as mount]
+            [hal.logging :as log]
             [hal.core :as core]
             [hal.config :as cfg]))
 
