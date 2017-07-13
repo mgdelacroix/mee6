@@ -9,8 +9,7 @@
 (s/def ::device string?)
 (s/def ::threshold int?)
 (s/def ::contex
-  (s/merge :config/check
-           (s/keys :req-un [::device ::threshold])))
+  (s/keys :req-un [::device ::threshold]))
 
 ;; --- Impl
 

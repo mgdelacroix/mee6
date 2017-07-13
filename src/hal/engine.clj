@@ -57,7 +57,7 @@
 
 (defn- exception?
   [v]
-  (instance? Exception v))
+  (instance? Throwable v))
 
 (defn- unwrap-exception
   [e]
@@ -70,7 +70,7 @@
   (fn [& [ctx & rest]]
     (try
       (apply fvar ctx rest)
-      (catch Exception e
+      (catch Throwable e
         e))))
 
 (defn- resolve-module
@@ -86,9 +86,12 @@
        (wrap-fvar check-var)])))
 
 (defn- notify-exception
-  [ctx data]
-  (->> (unwrap-exception data)
-       (notifications/send-exception-all ctx)))
+  [{:keys [id] :as ctx} exception]
+  (let [data (unwrap-exception exception)]
+    (swap! state assoc-in [:results id] {:status :grey
+                                         :output data
+                                         :updated-at (Instant/now)})
+    (notifications/send-exception-all ctx data)))
 
 (defn- notify-normal
   [{:keys [id] :as ctx} curr-status output]
