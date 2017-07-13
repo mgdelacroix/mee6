@@ -24,7 +24,10 @@
   (let [{:keys [name host cron] :as check} (get-check checks id)
         {:keys [status output updated-at] :as result} (get results id)
         special-out (select-keys output [:out :err :exit])
-        normal-out (dissoc output :out :err :exit)]
+        normal-out (if (:humanized output)
+                     (:humanized output)
+                     (dissoc output :out :err :exit))]
+
 
     [:div.content
      [:section#items
@@ -68,6 +71,5 @@
   (let [state (deref state)
         [uri sid] matches
         id (uuid/from-string sid)]
-    (println "handler" id)
     {:body (page state id)
      :status 200}))

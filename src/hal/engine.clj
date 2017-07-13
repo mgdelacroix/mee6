@@ -61,7 +61,8 @@
 
 (defn- unwrap-exception
   [e]
-  (let [data {:message (.getMessage e)}]
+  (let [data {:message (.getMessage e)
+              :out (with-out-str (clojure.stacktrace/print-stack-trace e))}]
     (cond-> data
       (ex-info? e) (merge (ex-data e)))))
 

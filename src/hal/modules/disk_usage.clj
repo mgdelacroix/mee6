@@ -1,6 +1,5 @@
 (ns hal.modules.disk-usage
   "Disk usage monitoring module."
-  (:refer-clojure :exclude [format])
   (:require [clojure.spec.alpha :as s]
             [cuerdas.core :as str]
             [hal.ssh :as ssh]))
@@ -14,7 +13,9 @@
 
 ;; --- Impl
 
-(defn- process-result
+(declare humanize)
+
+(defn- process-output
   "Process the df command output."
   [{:keys [device threshold] :as ctx} lines]
   {:pre [(s/valid? ::contex ctx)]}
@@ -36,23 +37,36 @@
              (filter match-device?)
              (first)
              (parse-line)
-             (format))))
+             (format)
+             (humanize))))
+
+(defn humanize
+  "Return human readable output."
+  [{:keys [capacity used percentage] :as output}]
+  (let [capacity (format "%.2f GB" (double (/ capacity 1024 1024)))
+        used (format "%.2f GB" (double (/ used 1024 1024)))
+        percentage (format "%d%%" percentage)]
+    (assoc output :humanized {:capacity capacity
+                              :used used
+                              :percentage percentage})))
+
 
 ;; --- API
 
 (defn run
   [{:keys [host device] :as ctx}]
-  (let [{:keys [exit out] :as result} (ssh/run host "df -l")]
+  (let [{:keys [exit out] :as output} (ssh/run host "df -l")]
     (if (= exit 0)
-      (if-let [result (process-result ctx out)]
-        result
+      (if-let [output (process-output ctx out)]
+        output
         (ex-info (str "Couldn't find device " device) {}))
-      (ex-info "Command returned non-zero status" result))))
+      (ex-info "Command returned non-zero status" output))))
 
 (defn check
-  "Check if the result is an error or not, and if the returned
+  "Check if the output is an error or not, and if the returned
   information triggers any notification"
-  [{:keys [threshold] :as ctx} {:keys [percentage] :as result}]
+  [{:keys [threshold] :as ctx} {:keys [percentage] :as output}]
   (if (> percentage threshold)
     :red
     :green))
+
