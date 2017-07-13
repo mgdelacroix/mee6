@@ -39,12 +39,14 @@
 
 (defn start
   [{:keys [http] :as config}]
-  (let [options (merge defaults http)]
-    (jetty/run-jetty #'router options)))
+  (when http
+    (let [options (merge defaults http)]
+      (jetty/run-jetty #'router options))))
 
 (defn stop
   [server]
-  (.stop server))
+  (when server
+    (.stop server)))
 
 (defstate server
   :start (start cfg/config)
