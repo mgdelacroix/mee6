@@ -87,11 +87,15 @@
 
 (defn- notify-exception
   [{:keys [id] :as ctx} exception]
-  (let [data (unwrap-exception exception)]
+  (let [{prev-status :status} (get-in @state [:results id])
+        data (unwrap-exception exception)]
     (swap! state assoc-in [:results id] {:status :grey
                                          :output data
                                          :updated-at (Instant/now)})
-    (notifications/send-exception-all ctx data)))
+
+    (when (or (not prev-status)
+              (not= prev-status :grey))
+      (notifications/send-exception-all ctx data))))
 
 (defn- notify-normal
   [{:keys [id] :as ctx} curr-status output]
