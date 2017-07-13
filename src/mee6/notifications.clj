@@ -1,5 +1,6 @@
 (ns mee6.notifications
-  (:require [mee6.logging :as log]
+  (:require [clojure.pprint :refer [pprint]]
+            [mee6.logging :as log]
             [mee6.config :as cfg]
             [hiccup.core :refer [html]]
             [postal.core :as postal])
@@ -21,11 +22,11 @@
            [:h1 "ERROR"])
          [:div.data
           [:ul
-           [:li [:strong "host"] (str " :: " hostname)]
-           [:li [:strong "status"] (str " :: " (name status))]
-           [:li [:strong "name"] (str " :: " checkname)]
-           [:li [:strong "result"] (str " :: " result)]
-           [:li [:strong "ctx"] (str " :: " ctx)]]]]))
+           [:li [:strong "host ::"] hostname]
+           [:li [:strong "status ::"] (name status)]
+           [:li [:strong "name ::"] checkname]
+           [:li [:strong "result"] [:pre (with-out-str (pprint result))]]
+           [:li [:strong "ctx"] [:pre (with-out-str (pprint ctx))]]]]]))
 
 (defn- format-subject
   [checkname status hostname]
@@ -54,8 +55,8 @@
   (log/inf " HOST:" (:hostname host))
   (log/inf " STATUS:" status)
   (log/inf " CHECK:" name)
-  (log/inf " RESULT:" result)
-  (log/inf " CTX:" ctx)
+  (log/inf " RESULT:" (with-out-str (pprint result)))
+  (log/inf " CTX:" (with-out-str (pprint ctx)))
   (log/inf "========== end email ==========")
   {:error :SUCCESS})
 
