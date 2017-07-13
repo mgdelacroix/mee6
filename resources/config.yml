@@ -24,13 +24,22 @@ checks:
 #    device: tank/data-tomb
 #    threshold: 10
 #
-  - name: Check if nginx is up and running
+#  - name: Check if nginx is up and running
+#    hosts:
+#      - raider
+#    cron: "*/5 * * * * ?"
+#    notify: test
+#    module: service
+#    service: nginx
+
+  - name: Check debian version
     hosts:
       - raider
     cron: "*/5 * * * * ?"
     notify: test
-    module: service
-    service: nginx
+    module: script
+    file: /tmp/myscript
+    # args: noneeded
 
 notify:
   sys:
