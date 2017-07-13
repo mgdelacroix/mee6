@@ -1,13 +1,22 @@
 (ns hal.http
   (:require [mount.core :refer [defstate]]
             [ring.adapter.jetty :as jetty]
-            [hal.config :as cfg]))
+            [hal.config :as cfg]
+            [hal.http.home :as home]
+            [hal.http.detail :as detail]))
 
 ;; --- Router
 
-(defn router
+(defn not-found
   [request]
-  {:body "hello world"})
+  {:body "not found"})
+
+(defn router
+  [{:keys [uri] :as request}]
+  (cond
+    (re-matches #"^/$" uri) (home/handler request)
+    (re-matches #"^/detail/[^\/]+" uri) (detail/handler request)
+    :else (not-found request)))
 
 ;; --- API
 
