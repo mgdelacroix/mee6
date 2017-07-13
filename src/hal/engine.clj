@@ -97,10 +97,9 @@
                            :result result
                            :updated-at (Instant/now)})
     (if prev-status
-      (when (and (= curr-status :red)
-                 (not= prev-status :red))
+      (when (not= prev-status curr-status)
         (notifications/send-all ctx curr-status result))
-      (when (= curr-status :red)
+      (when (not= curr-status :green)
         (notifications/send-all ctx curr-status result)))))
 
 (defn- check-runner
