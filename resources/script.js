@@ -3,16 +3,16 @@
 
   function onLoaded(event) {
     // Page reloading
-    setInterval(async () => {
-      const response = await fetch(location.href);
-      const text = await response.text();
+    setInterval(() => {
+      fetch(location.href)
+        .then((rsp) => rsp.text())
+        .then((txt) => {
+          const el = document.createElement("div");
+          el.innerHTML = txt;
 
-
-      const el = document.createElement("div")
-      el.innerHTML = text;
-
-      document.querySelector("#main-content")
-        .replaceWith(el.querySelector("#main-content"));
-    }, 5000);
+          document.querySelector("#main-content")
+            .replaceWith(el.querySelector("#main-content"));
+        });
+    }, 2000);
   }
 })();
