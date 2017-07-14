@@ -28,7 +28,7 @@
                      (:humanized output)
                      (dissoc output :out :err :exit))]
 
-    [:div.content
+    [:div#main-content.content
      [:section#items
       (body-content-summary state)
 

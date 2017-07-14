@@ -8,8 +8,9 @@
    [:meta {:http-equiv "Content-Type"
            :content "text/html; charset=UTF-8"}]
    [:title title]
+   [:script
+    (slurp (io/resource "script.js"))]
    [:style {:media "screen"}
-
     (slurp (io/resource "styles.css"))]])
 
 (defn body-header

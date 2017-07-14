@@ -46,7 +46,7 @@
 
 (defn body-content
   [{:keys [checks results] :as state}]
-  [:div.content
+  [:div#main-content.content
    [:section#items
     (body-content-summary state)
     [:h2 "INSTANCES"]
