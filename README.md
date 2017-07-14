@@ -64,6 +64,14 @@ systemctl start mee6
 systemctl enable mee6  # to run it every time the system boots
 ```
 
+### Web GUI security
+
+`Mee6` has a web GUI that can be enabled using the `http` section of
+the configuration file. This interface is by default unprotected.
+
+To secure it, is recommended to expose the interface's port only
+through a reverse proxy with a Basic Auth schema.
+
 ## Config file
 
 The configuration file is a `yaml` file with the following blocks:
