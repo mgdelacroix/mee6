@@ -229,4 +229,26 @@ http:
   port: 3001
 ```
 
+## Modules
+
+### disk-usage
+
+| parameter | required | description |
+|-----------|----------|-------------|
+| device    | yes      | The device to look for in the `df -l` stdout. |
+| threshold | no       | The usage percentage that, if it's trespassed, triggers an alert and a `FAILED` state for the check. |
+
+### service
+
+| parameter | required | description |
+|-----------|----------|-------------|
+| service   | yes      | The name of the `systemd` service to check. |
+
+### script
+
+| parameter | required | description |
+|-----------|----------|-------------|
+| file      | yes      | The script to upload and execute in the remote machine. |
+| args      | no       | The arguments to pass to the remote script. |
+
 ## Development
