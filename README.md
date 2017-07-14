@@ -233,6 +233,11 @@ http:
 
 ### disk-usage
 
+This module uses the `df` command to parse the capacity and usage of a
+given device and obtain the usage percentage. If the `threshold`
+parameter is set, it checks the usage percentage against the
+`threshold` and triggers a `FAILED` state if surpassed.
+
 | parameter | required | description |
 |-----------|----------|-------------|
 | device    | yes      | The device to look for in the `df -l` stdout. |
@@ -240,11 +245,47 @@ http:
 
 ### service
 
+This module checks for the status of a `systemd` service and captures
+the last 20 lines of the `journalctl` logs.
+
+The remote user should have permissions to run both commands.
+
 | parameter | required | description |
 |-----------|----------|-------------|
 | service   | yes      | The name of the `systemd` service to check. |
 
 ### script
+
+This module uploads a script file and then runs it on the remote
+machine. The `stdout`, `stderr` and `exit` code are returned as the
+output. The check state is decided from the exit code:
+
+- `0`: The state is `green` or `SUCCESSFUL`.
+- `1`: The state is `red` or `FAILED`.
+- `anything else`: The state is `grey` or `ERROR`.
+
+Besides the `stdout` and `stderr`, if some specific data is wanted to
+be shown, the script can print at the end of the output any number of
+lines preceeded by `---`. Those lines will be parsed as key-value
+pairs and associated to the output of the check.
+
+For example, this would be a simple script to get the `hostname` and
+the output of the `uname` command in a remote machine:
+
+```sh
+#!/usr/bin/env bash
+
+echo "---"
+echo "host: $HOSTNAME"
+echo "kernel: `uname -a`"
+```
+
+And this would be the data shown in the check's output:
+
+```yaml
+host: firefly
+kernel: Linux firefly 4.11.0-1-amd64 #1 SMP Debian 4.11.6-1 (2017-06-19) x86_64 GNU/Linux
+```
 
 | parameter | required | description |
 |-----------|----------|-------------|
@@ -252,3 +293,7 @@ http:
 | args      | no       | The arguments to pass to the remote script. |
 
 ## Development
+
+### Start the environment
+
+### Develop a module
