@@ -17,6 +17,8 @@
                  [funcool/cuerdas "2.0.3"]
                  [com.draines/postal "2.0.2"]
                  [hiccup "1.0.5"]]
+
+  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :profiles
   {:dev {:main ^:skip-aot mee6.repl}
    :prod {:main ^:skip-aot mee6.core}
