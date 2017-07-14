@@ -1,3 +1,21 @@
+@media only screen and (max-width: 650px) {
+    .summary {
+        flex-direction: column;
+    }
+    .summary .progress {
+        margin-right: 0;
+        margin-bottom: 1rem;
+        flex: inherit;
+    }
+    .summary .data li {
+        padding: 0.5rem 1rem;
+        width: 30%;
+    }
+    .summary .data .value {
+        display: block;
+    }
+}
+
 * {
     box-sizing: border-box;
 }
@@ -152,6 +170,7 @@ section {
     background-color: #ddf3d5;
     border-left: 10px solid #9dce0a;
     display: inline-block;
+    margin-left: 0.2rem;
 }
 .summary .data li.data-ko {
     background-color: #f1d1d8;
