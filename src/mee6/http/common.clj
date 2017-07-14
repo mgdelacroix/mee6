@@ -8,6 +8,8 @@
    [:meta {:http-equiv "Content-Type"
            :content "text/html; charset=UTF-8"}]
    [:title title]
+   [:meta {:name "viewport"
+           :content "width=device-width, initial-scale=0.7"}]
    [:script
     (slurp (io/resource "script.js"))]
    [:style {:media "screen"}
