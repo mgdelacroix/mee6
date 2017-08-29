@@ -45,6 +45,7 @@ check is not `green` when the tool starts, or if it status changes.
 
 ![Mee6](https://i.ytimg.com/vi/QrQZg-gNC_k/maxresdefault.jpg)
 
+
 ## Execution and installation
 
 To run `Mee6`, you just need its `jar` file and a config file. To
@@ -64,6 +65,7 @@ systemctl start mee6
 systemctl enable mee6  # to run it every time the system boots
 ```
 
+
 ### Web GUI security
 
 `Mee6` has a web GUI that can be enabled using the `http` section of
@@ -72,9 +74,11 @@ the configuration file. This interface is by default unprotected.
 To secure it, is recommended to expose the interface's port only
 through a reverse proxy with a Basic Auth schema.
 
+
 ## Config file
 
 The configuration file is a `yaml` file with the following blocks:
+
 
 ### hosts
 
@@ -96,6 +100,7 @@ hosts:
   web:
     hostname: web1_myproject
 ```
+
 
 ### checks
 
@@ -142,6 +147,7 @@ checks:
     # args:
 ```
 
+
 ### notify
 
 We can describe each notify group as a key inside the notify
@@ -165,6 +171,7 @@ notify:
       - me@example.com
 ```
 
+
 ### mail
 
 This is where the mail configuration goes. `Mee6` uses
@@ -187,6 +194,7 @@ for now, it can be configured in three modes:
 | tls       | no       | Enable `tls` mode for the `smtp` connection. Cannot be used if `ssl` is `true`. |
 | port      | no       | Port for the `smtp` connection. |
 
+
 #### Console example
 
 ```yaml
@@ -195,6 +203,7 @@ mail:
   mode: console
 ```
 
+
 #### Local example
 
 ```yaml
@@ -202,6 +211,7 @@ mail:
   from: mee6@example.com
   mode: local
 ```
+
 
 #### SMTP example (gmail)
 
@@ -214,6 +224,7 @@ mail:
   pass: mypassword
   ssl: true
 ```
+
 
 ### http
 
@@ -229,6 +240,7 @@ http:
   port: 3001
 ```
 
+
 ## Modules
 
 ### disk-usage
@@ -243,6 +255,7 @@ parameter is set, it checks the usage percentage against the
 | device    | yes      | The device to look for in the `df -l` stdout. |
 | threshold | no       | The usage percentage that, if it's trespassed, triggers an alert and a `FAILED` state for the check. |
 
+
 ### service
 
 This module checks for the status of a `systemd` service and captures
@@ -253,6 +266,7 @@ The remote user should have permissions to run both commands.
 | parameter | required | description |
 |-----------|----------|-------------|
 | service   | yes      | The name of the `systemd` service to check. |
+
 
 ### script
 
@@ -292,8 +306,39 @@ kernel: Linux firefly 4.11.0-1-amd64 #1 SMP Debian 4.11.6-1 (2017-06-19) x86_64 
 | file      | yes      | The script to upload and execute in the remote machine. |
 | args      | no       | The arguments to pass to the remote script. |
 
-## Development
+## Developers Guide
 
 ### Start the environment
 
-### Develop a module
+You have two ways to start the application in development mode. The
+most basic one is just using `lein`:
+
+```bash
+lein run -m mee6.core/-main
+```
+
+This command will start the application i a very similar way as
+executing the production jar. But it only serves to test the
+application without generating the jar file. The most usefull way to
+start the application is through the lein repl, where you have the way
+to restart the application and reload all changed source files.
+
+```txt
+$ lein repl
+nREPL server started on port 39585 on host 127.0.0.1 - nrepl://127.0.0.1:39585
+REPL-y 0.3.7, nREPL 0.2.12
+Clojure 1.9.0-alpha19
+OpenJDK 64-Bit Server VM 1.8.0_144-b01
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+ Javadoc: (javadoc java-object-or-class-here)
+    Exit: Control+D or (exit) or (quit)
+ Results: Stored in vars *1, *2, *3, an exception in *e
+
+mee6.repl=> (start)
+2017-08-29 18:32:19 dom.niwi.nz INFO [mee6.engine:?] - Starting monitoring engine.
+2017-08-29 18:32:19 dom.niwi.nz INFO [mee6.engine:?] - Started 3 jobs.
+```
+
+There are also `stop` and `restart` functions in the same namespace.
