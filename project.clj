@@ -21,7 +21,7 @@
                  [com.draines/postal "2.0.2" :exclusions [commons-codec]]
                  [hiccup "1.0.5"]]
 
-  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
+  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :profiles
   {:dev {:main ^:skip-aot mee6.repl
          :plugins [[lein-ancient "0.6.10"]]}
