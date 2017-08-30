@@ -1,3 +1,5 @@
+database: state.db
+
 hosts:
   targaryen:
     hostname: targaryen
@@ -12,38 +14,38 @@ checks:
     device: /dev/md1
     threshold: 80
 
-  - name: docker service
-    hosts:
-      - targaryen
-    cron: "*/5 * * * * ?"
-    notify: sys
-    module: service
-    service: docker
+# - name: docker service
+#   hosts:
+#     - targaryen
+#   cron: "*/5 * * * * ?"
+#   notify: sys
+#   module: service
+#   service: docker
 
-  - name: special script
-    hosts:
-      - targaryen
-    cron: "*/5 * * * * ?"
-    notify: sys
-    module: script
-    file: /tmp/myscript
+# - name: special script
+#   hosts:
+#     - targaryen
+#   cron: "*/5 * * * * ?"
+#   notify: sys
+#   module: script
+#   file: /tmp/myscript
 
-#  - name: check if nginx is up and running
-#    hosts:
-#      - baoqu
-#    cron: "*/5 * * * * ?"
-#    notify: test
-#    module: service
-#    service: nginx
+# - name: check if nginx is up and running
+#   hosts:
+#     - baoqu
+#   cron: "*/5 * * * * ?"
+#   notify: test
+#   module: service
+#   service: nginx
 #
-#  - name: say hi
-#    hosts:
-#      - entity
-#    cron: "*/5 * * * * ?"
-#    notify: test
-#    module: script
-#    file: /tmp/myscript
-#    # args: noneeded
+# - name: say hi
+#   hosts:
+#     - entity
+#   cron: "*/5 * * * * ?"
+#   notify: test
+#   module: script
+#   file: /tmp/myscript
+#   # args: noneeded
 
 notify:
   sys:
