@@ -3,7 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
-            [mee6.state :refer [state]]
+            [mee6.database :refer [state]]
             [mee6.scheduler :as schd]
             [mee6.config :as cfg]
             [mee6.uuid :as uuid]

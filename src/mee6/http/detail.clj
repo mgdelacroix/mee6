@@ -5,7 +5,7 @@
             [hiccup.page :refer [html5]]
             [yaml.core :as yaml]
             [mee6.uuid :as uuid]
-            [mee6.state :refer [state]]
+            [mee6.database :refer [state]]
             [mee6.http.common :refer [html-head body-header]]
             [mee6.http.home :refer [body-content-summary body-content-item]]))
 

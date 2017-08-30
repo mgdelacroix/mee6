@@ -3,7 +3,7 @@
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [cuerdas.core :as str]
-            [mee6.state :refer [state]]
+            [mee6.database :refer [state]]
             [mee6.http.common :refer [html-head body-header]]))
 
 (defn body-content-item
