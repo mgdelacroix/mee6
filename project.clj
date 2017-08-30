@@ -10,12 +10,15 @@
                  [org.slf4j/slf4j-nop "1.7.25"]
                  [org.quartz-scheduler/quartz "2.3.0"]
                  [org.quartz-scheduler/quartz-jobs "2.3.0"]
+
+                 [com.cognitect/transit-clj "0.8.300"]
+                 [funcool/datoteka "1.0.0"]
                  [io.forward/yaml "1.0.6"]
                  [ring "1.6.2"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
                  [funcool/cuerdas "2.0.3"]
-                 [com.draines/postal "2.0.2"]
+                 [com.draines/postal "2.0.2" :exclusions [commons-codec]]
                  [hiccup "1.0.5"]]
 
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
