@@ -1,7 +1,16 @@
 (ns mee6.transit
-  (:require [cognitect.transit :as t])
+  (:require [cognitect.transit :as t]
+            [mee6.time :as dt])
   (:import java.io.ByteArrayInputStream
            java.io.ByteArrayOutputStream))
+
+;; --- Handlers
+
+(def ^:private +reader-handlers+
+  dt/+read-handlers+)
+
+(def ^:private +write-handlers+
+  dt/+write-handlers+)
 
 ;; --- Low Level Api
 
@@ -9,7 +18,7 @@
   ([istream]
    (reader istream nil))
   ([istream {:keys [type] :or {type :msgpack}}]
-   (t/reader istream type {})))
+   (t/reader istream type {:handlers +reader-handlers+})))
 
 (defn read!
   "Read value from streamed transit reader."
@@ -20,7 +29,7 @@
   ([ostream]
    (writer ostream nil))
   ([ostream {:keys [type] :or {type :msgpack}}]
-   (t/writer ostream type {})))
+   (t/writer ostream type {:handlers +write-handlers+})))
 
 (defn write!
   [writer data]
