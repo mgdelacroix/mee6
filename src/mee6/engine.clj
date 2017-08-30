@@ -3,6 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
+            [mee6.time :as dt]
             [mee6.transit :as t]
             [mee6.database :refer [state]]
             [mee6.scheduler :as schd]
@@ -97,19 +98,23 @@
 
 (defn- notify-exception
   [{:keys [id] :as ctx} exception]
-  (let [{prev-status :status} (get-in @state [:results id])
-        data (unwrap-exception exception)]
-    (swap! state assoc-in [:results id] {:status :grey
-                                         :output data})
+  (let [prev-status (get-in @state [:results id :status])
+        data (unwrap-exception exception)
+        result {:status :grey
+                :output data
+                :updated-at (dt/now)}]
+    (swap! state assoc-in [:results id] result)
     (when (or (not prev-status)
               (not= prev-status :grey))
       (notifications/send-exception-all ctx data))))
 
 (defn- notify-normal
   [{:keys [id] :as ctx} curr-status output]
-  (let [{prev-status :status} (get-in @state [:results id])]
-    (swap! state assoc-in [:results id] {:status curr-status
-                                         :output output})
+  (let [prev-status (get-in @state [:results id :status])
+        result {:status curr-status
+                :output output
+                :updated-at (dt/now)}]
+    (swap! state assoc-in [:results id] result)
     (if prev-status
       (when (not= prev-status curr-status)
         (notifications/send-all ctx curr-status output))
