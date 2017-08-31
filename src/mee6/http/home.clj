@@ -3,11 +3,13 @@
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [cuerdas.core :as str]
+            [mee6.engine :as engine]
+            [mee6.config :as cfg]
             [mee6.database :refer [state]]
             [mee6.http.common :refer [html-head body-header]]))
 
 (defn body-content-item
-  [{:keys [id name host cron] :as check} {:keys [status updated-at] :as result}]
+  [{:keys [id name host cron] :as check} {:keys [status updated-at] :as data}]
   [:li.item {:class (case status
                       :green "item-ok"
                       :red "item-ko"
@@ -19,11 +21,11 @@
      [:li [:strong "last run: "] (str updated-at)]]]])
 
 (defn body-content-summary
-  [{:keys [checks results] :as state}]
-  (let [total-count (count checks)
-        matches-status? #(= (get-in results [(:id %1) :status]) %2)
-        ok-count (count (filter #(matches-status? % :green) checks))
-        ko-count (count (filter #(matches-status? % :red) checks))
+  [state]
+  (let [total-count (count engine/checks)
+        matches-status? #(= (get-in state [:checks (:id %1) :status]) %2)
+        ok-count (count (filter #(matches-status? % :green) engine/checks))
+        ko-count (count (filter #(matches-status? % :red) engine/checks))
         ds-count (- total-count ko-count ok-count)
         ok-pcent (quot (* ok-count 100) total-count)
         ko-pcent (quot (* ko-count 100) total-count)
@@ -45,17 +47,17 @@
        [:span.label "Disabled"]]]]))
 
 (defn body-content
-  [{:keys [checks results] :as state}]
+  [state]
   [:div#main-content.content
    [:section#items
     (body-content-summary state)
     [:h2 "INSTANCES"]
     [:ul.list.items
-     (for [item checks
-           :let [result (get results (:id item))]]
-       (body-content-item item result))]]])
+     (for [{:keys [id] :as item} engine/checks]
+       (->> (get-in state [:checks id])
+            (body-content-item item)))]]])
 
-(defn- page
+(defn- render-page
   [state]
   (html5
    (html-head :title "Mee6")
@@ -65,6 +67,5 @@
 
 (defn handler
   [request]
-  (let [state (deref state)]
-    {:body (page state)
-     :status 200}))
+  {:body (render-page @state)
+   :status 200})
