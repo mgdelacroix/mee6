@@ -70,10 +70,10 @@
 
 (defn- unwrap-exception
   [e]
-  (let [data {:message (.getMessage e)
-              :out (with-out-str (clojure.stacktrace/print-stack-trace e))}]
-    (cond-> data
-      (instance? clojure.lang.ExceptionInfo e) (merge (ex-data e)))))
+  (if (instance? clojure.lang.ExceptionInfo e)
+   (merge {:message (.getMessage e)} (ex-data e))
+   {:message (.getMessage e)
+    :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))}))
 
 (defn- safe-resolve
   [sym]
@@ -134,7 +134,7 @@
     (try
       (execute-check ctx)
       (catch Throwable e
-        (handle-exception e))
+        (handle-exception ctx e))
       (finally
         (let [ms (/ (double (- (. System (nanoTime)) start)) 1000000.0)]
           (log/dbg (str/istr "Check ~{id} finished in ~{ms}ms.")))))))
