@@ -44,8 +44,8 @@
     (if (= exit 0)
       (if-let [result (process-output ctx out)]
         result
-        (ex-info (str "Couldn't find device " device) {}))
-      (ex-info "Command returned non-zero status" output))))
+        (throw (ex-info "Could not find device." {:device device})))
+      (throw (ex-info "Command returned non-zero status" {})))))
 
 (defn instance
   [{:keys [threshold] :as ctx}]
