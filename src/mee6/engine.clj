@@ -48,7 +48,7 @@
         hash (digest data)]
     (assoc check :id hash)))
 
-(defn- get-checks
+(defn- calculate-checks
   [{:keys [hosts checks notify] :as config}]
   (for [check checks
         hostname (:hosts check)
@@ -59,20 +59,21 @@
         (assoc :host host :notify notify)
         (assoc-identifier))))
 
-(defn- ex-info?
-  [v]
-  (instance? clojure.lang.ExceptionInfo v))
+(defn- load-checks
+  [config]
+  (vec (calculate-checks config)))
 
-(defn- exception?
-  [v]
-  (instance? Throwable v))
+(defstate checks
+  :start (load-checks cfg/config))
+
+;; --- Engine Impl
 
 (defn- unwrap-exception
   [e]
   (let [data {:message (.getMessage e)
               :out (with-out-str (clojure.stacktrace/print-stack-trace e))}]
     (cond-> data
-      (ex-info? e) (merge (ex-data e)))))
+      (instance? clojure.lang.ExceptionInfo e) (merge (ex-data e)))))
 
 (defn- safe-resolve
   [sym]
@@ -138,8 +139,6 @@
         (let [ms (/ (double (- (. System (nanoTime)) start)) 1000000.0)]
           (log/dbg (str/istr "Check ~{id} finished in ~{ms}ms.")))))))
 
-;; --- API
-
 (defn- engine?
   [v]
   (s/valid? ::engine v))
@@ -153,8 +152,7 @@
             (let [opts (select-keys ctx [:cron :interval])]
               (schd/schedule! scheduler check-runner [ctx] opts)))]
     (log/inf "Starting monitoring engine.")
-    (let [checks (get-checks config)
-          jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
+    (let [jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
       (log/inf "Started" (count jobs) "jobs.")
       {:jobs jobs
        :scheduler scheduler})))
@@ -166,8 +164,6 @@
   (log/inf "Stoping monitoring engine.")
   (let [unschedule-job (partial schd/unschedule! scheduler)]
     (run! unschedule-job jobs)))
-
-;; --- State
 
 (defstate engine
   :start (start schd/scheduler cfg/config)
