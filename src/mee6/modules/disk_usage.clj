@@ -14,8 +14,6 @@
 
 ;; --- Impl
 
-(declare humanize)
-
 (defn- process-output
   "Process the df command output."
   [{:keys [device threshold] :as ctx} lines]
@@ -37,16 +35,6 @@
              (first)
              (parse-line)
              (format))))
-
-;; (defn humanize
-;;   "Return human readable output."
-;;   [{:keys [capacity used percentage] :as output}]
-;;   (let [capacity (format "%.2f GB" (double (/ capacity 1024 1024)))
-;;         used (format "%.2f GB" (double (/ used 1024 1024)))
-;;         percentage (format "%d%%" percentage)]
-;;     (assoc output :humanized {:capacity capacity
-;;                               :used used
-;;                               :percentage percentage})))
 
 ;; --- API
 
