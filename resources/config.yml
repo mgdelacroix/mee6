@@ -8,19 +8,19 @@ checks:
   - name: disk usage on /dev/md1
     hosts:
       - targaryen
-    cron: "*/5 * * * * ?"
+    cron: "*/10 * * * * ?"
     notify: sys
     module: disk-usage
     device: /dev/md1
     threshold: 80
 
-# - name: docker service
-#   hosts:
-#     - targaryen
-#   cron: "*/5 * * * * ?"
-#   notify: sys
-#   module: service
-#   service: docker
+  - name: docker service
+    hosts:
+      - targaryen
+    cron: "*/10 * * * * ?"
+    notify: sys
+    module: service
+    service: docker
 
 # - name: special script
 #   hosts:
