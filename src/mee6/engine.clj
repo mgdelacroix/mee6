@@ -13,7 +13,7 @@
             [mee6.notifications :as notifications]
             [mee6.logging :as log])
   (:import java.security.MessageDigest
-           java.util.Base64))
+           org.apache.commons.codec.binary.Base64))
 
 ;; --- Spec
 
@@ -36,11 +36,9 @@
   its msgpack representation."
   [data]
   (let [data (t/encode data {:type :msgpack})
-        dgst (MessageDigest/getInstance "SHA-256")
-        b64e (Base64/getUrlEncoder)]
+        dgst (MessageDigest/getInstance "SHA-256")]
     (.update dgst data 0 (count data))
-    (->> (.digest dgst)
-         (.encodeToString b64e))))
+    (Base64/encodeBase64URLSafeString (.digest dgst))))
 
 (defn- assoc-identifier
   "Given a check object calculates the unique identifier and return
