@@ -48,6 +48,17 @@
    [:section.code
     [:pre (:lastlog local)]]])
 
+(defmethod render-check "script"
+  [check {:keys [kvpairs stdout] :as local}]
+  [:div
+   (when kvpairs
+     [:div
+      [:h3 "Parsed key-value data:"]
+      [:section.code
+       [:pre (dump-yaml kvpairs)]]])
+   [:h3 "Stdout:"
+    [:section.code
+     [:pre stdout]]]])
 
 (defn get-check-by-id
   [id]

@@ -4,7 +4,7 @@
             [datoteka.core :as fs]
             [cuerdas.core :as str]))
 
-(defn- get-remote-path
+(defn- calculate-remote-path
   [local-path]
   (let [filename (fs/name local-path)]
     (str "/tmp/.mee6-" filename)))
@@ -21,19 +21,20 @@
 
 (defn process-script-output
   [output]
-  (let [[stdout kvpairs] (split-with #(not= % "---") (str/lines output))]
-    (-> (parse-kvlines (rest kvpairs))
-        (assoc :stdout (str/join "\n" stdout)))))
+  (let [[stdout kvlines] (split-with #(not= % "---") (str/lines output))]
+    {:stdout (str/join "\n" stdout)
+     :kvpairs (parse-kvlines (rest kvlines))}))
 
 (defn instance
   [{:keys [host file args] :as ctx}]
   (reify
     mod/IModule
     (-run [_ local]
-      (let [remote-path (get-remote-path file)
+      (let [remote-path (calculate-remote-path file)
             _ (ssh/copy host file remote-path)
             result (ssh/run host (str remote-path " " args))]
-        (-> (process-script-output (:out result))
+        (-> (:out result)
+            (process-script-output)
             (assoc :exitcode (:exit result)))))
 
     (-check [_ local]
