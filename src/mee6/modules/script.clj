@@ -1,43 +1,44 @@
 (ns mee6.modules.script
   (:require [mee6.ssh :as ssh]
-            [clojure.java.io :as io]
+            [mee6.modules :as mod]
+            [datoteka.core :as fs]
             [cuerdas.core :as str]))
 
-(defn get-basename
-  [path]
-  (-> (io/file path)
-      (.getName)))
-
-(defn get-remote-path
+(defn- get-remote-path
   [local-path]
-  (let [filename (get-basename local-path)]
+  (let [filename (fs/name local-path)]
     (str "/tmp/.mee6-" filename)))
 
-(defn process-out
-  [{:keys [exit out] :as result}]
-  (letfn [(reduce-output [acc val]
-            (if (or (= val "---") (not (empty? acc)))
-              (conj acc val)
-              acc))
-          (transform-to-map [acc val]
-            (let [[key value] (map str/trim (str/split val #":" 2))
-                  key (keyword "script" key)]
-              (assoc acc key value)))]
-    (->> (str/lines out)
-         (reduce reduce-output [])
-         (rest)
-         (reduce transform-to-map result))))
+(defn- parse-kvline
+  [state line]
+  (let [[key value] (map str/trim (str/split line #":" 2))]
+    (assoc! state (keyword "script" key) value)))
 
-(defn run
+(defn- parse-kvlines
+  [kvlines]
+  (persistent!
+   (reduce parse-kvline (transient {}) kvlines)))
+
+(defn process-script-output
+  [output]
+  (let [[stdout kvpairs] (split-with #(not= % "---") (str/lines output))]
+    (-> (parse-kvlines (rest kvpairs))
+        (assoc :stdout (str/join "\n" stdout)))))
+
+(defn instance
   [{:keys [host file args] :as ctx}]
-  (let [remote-path (get-remote-path file)
-        _ (ssh/copy host file remote-path)
-        {:keys [exit] :as result} (ssh/run host (str remote-path " " args))]
-    (process-out result)))
+  (reify
+    mod/IModule
+    (-run [_ local]
+      (let [remote-path (get-remote-path file)
+            _ (ssh/copy host file remote-path)
+            result (ssh/run host (str remote-path " " args))]
+        (-> (process-script-output (:out result))
+            (assoc :exitcode (:exit result)))))
 
-(defn check
-  [ctx {:keys [exit out err] :as result}]
-  (case exit
-    0 :green
-    1 :red
-    :grey))
+    (-check [_ local]
+      (let [{:keys [exitcode]} local]
+        (case exitcode
+          0 :green
+          1 :red
+          :grey)))))

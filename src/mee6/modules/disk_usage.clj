@@ -5,14 +5,10 @@
             [mee6.modules :as mod]
             [mee6.ssh :as ssh]))
 
-;; --- Spec
-
 (s/def ::device string?)
 (s/def ::threshold int?)
 (s/def ::contex
   (s/keys :req-un [::device ::threshold]))
-
-;; --- Impl
 
 (defn- process-output
   "Process the df command output."
@@ -23,7 +19,7 @@
               (when (>= (count parts) 3)
                 [(nth parts 1)
                  (nth parts 2)])))
-          (format [[capacity used]]
+          (parse-data [[capacity used]]
             (let [capacity (read-string capacity)
                   used (read-string used)]
               {:capacity capacity
@@ -34,9 +30,7 @@
              (filter match-device?)
              (first)
              (parse-line)
-             (format))))
-
-;; --- API
+             (parse-data))))
 
 (defn- retrieve-stats
   [{:keys [host device] :as ctx}]
@@ -60,4 +54,3 @@
         (if (> percentage threshold)
           :red
           :green)))))
-
