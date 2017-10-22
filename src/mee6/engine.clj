@@ -27,9 +27,9 @@
   "Helper that retrieves the value referenced by the
   keywordiced id."
   [coll id]
-  {:pre [(string? id)]}
-  (->> (keyword id)
-       (get coll)))
+  (when id
+    (->> (keyword id)
+         (get coll))))
 
 (defn- digest
   "Given the check essential data, calculates the sha256 hash of
@@ -54,7 +54,7 @@
         hostname (:hosts check)
         :let [host (get-by-keywordized-id hosts hostname)
               notify (get-by-keywordized-id notify (:notify check))]
-        :while (and host notify)]
+        :while host]
     (-> (dissoc check :hosts)
         (assoc :host host :notify notify)
         (assoc-identifier))))
@@ -71,9 +71,9 @@
 (defn- unwrap-exception
   [e]
   (if (instance? clojure.lang.ExceptionInfo e)
-   (merge {:message (.getMessage e)} (ex-data e))
-   {:message (.getMessage e)
-    :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))}))
+    (merge {:message (.getMessage e)} (ex-data e))
+    {:message (.getMessage e)
+     :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))}))
 
 (defn- safe-resolve
   [sym]
@@ -83,7 +83,7 @@
       nil)))
 
 (defn- resolve-module
-  "Resolve the module and return the `run` and `check` functions."
+  "Resolve the module and return the module instance."
   [name ctx]
   (let [mns (str "mee6.modules." name)
         sym (symbol (str mns "/instance"))]
@@ -107,14 +107,15 @@
                  (assoc :status curr-status)
                  (assoc :updated-at (dt/now))
                  (assoc :local local))))
-    (if prev-status
-      (when (not= prev-status curr-status)
-        (notifications/send-all ctx curr-status local)
-      (when (not= curr-status :green)
-        (notifications/send-all ctx curr-status local))))))
+    (when notify
+      (if prev-status
+        (when (not= prev-status curr-status)
+          (notifications/send-all ctx curr-status local))
+        (when (not= curr-status :green)
+          (notifications/send-all ctx curr-status local))))))
 
 (defn- handle-exception
-  [{:keys [id] :as ctx} exception]
+  [{:keys [id notify] :as ctx} exception]
   (let [prev-status (get-in @state [:checks id :status])
         error (unwrap-exception exception)]
     (swap! state update-in [:checks id]
@@ -123,8 +124,8 @@
                  (assoc :status :grey)
                  (assoc :updated-at (dt/now))
                  (assoc :error error))))
-    (when (or (not prev-status)
-              (not= prev-status :grey))
+    (when (and notify (or (not prev-status)
+                          (not= prev-status :grey)))
       (notifications/send-exception-all ctx error))))
 
 (defn- check-runner

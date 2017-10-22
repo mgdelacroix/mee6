@@ -27,8 +27,8 @@
 
 (s/def :config/check (s/keys :req-un [:check/hosts
                                       :check/cron
-                                      :check/module
-                                      :check/notify]))
+                                      :check/module]
+                             :opt-un [:check/notify]))
 
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
 
