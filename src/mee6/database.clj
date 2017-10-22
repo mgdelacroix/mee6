@@ -19,12 +19,12 @@
   (when (and (fs/exists? src)
              (not (fs/directory? src)))
     (some-> (fs/slurp-bytes src)
-            (t/decode {:type :json}))))
+            (t/decode {:type :msgpack}))))
 
 (defn- persist-state
   [dst data]
   {:pre [(fs/path? dst)]}
-  (let [data (t/encode data {:type :json})
+  (let [data (t/encode data {:type :msgpack})
         tmp (fs/path (str dst ".tmp"))]
     (with-open [dst (io/output-stream tmp)]
       (.write dst data))
