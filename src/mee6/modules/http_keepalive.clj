@@ -31,19 +31,24 @@
       (catch clojure.lang.ExceptionInfo e
         (ex-data e)))))
 
+(defn- run
+  [ctx local]
+  (let [start-time (System/nanoTime)
+        {:keys [status]} (perform-request ctx)
+        end-time (System/nanoTime)]
+    (assoc local
+           :status status
+           :latency (/ (double (- end-time start-time)) 1000000.0))))
+
+(defn- check
+  [ctx local]
+  (let [expected-statuses (extract-expected-statuses ctx)
+        status (:status local)]
+    (if (expected-statuses status) :green :red)))
+
 (defn instance
   [ctx]
   (reify
     mod/IModule
-    (-run [_ local]
-      (let [start-time (System/nanoTime)
-            {:keys [status]} (perform-request ctx)
-            end-time (System/nanoTime)]
-        (assoc local
-               :status status
-               :latency (/ (double (- end-time start-time)) 1000000.0))))
-
-    (-check [_ local]
-      (let [expected-statuses (extract-expected-statuses ctx)
-            status (:status local)]
-        (if (expected-statuses status) :green :red)))))
+    (-run [_ local] (run ctx local))
+    (-check [_ local] (check ctx local))))

@@ -1,8 +1,8 @@
 (ns mee6.engine
   "Monitoring engine namespace."
   (:require [clojure.spec.alpha :as s]
-            [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
+            [mount.core :as mount :refer [defstate]]
             [mee6.time :as dt]
             [mee6.transit :as t]
             [mee6.modules :as mod]
