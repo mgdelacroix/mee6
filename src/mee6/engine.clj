@@ -9,7 +9,6 @@
             [mee6.database :refer [state]]
             [mee6.scheduler :as schd]
             [mee6.config :as cfg]
-            [mee6.uuid :as uuid]
             [mee6.notifications :as notifications]
             [mee6.logging :as log])
   (:import java.security.MessageDigest
