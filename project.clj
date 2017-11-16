@@ -17,6 +17,7 @@
                  [io.forward/yaml "1.0.6"]
                  [ring "1.6.2"]
                  [mount "0.1.11"]
+                 [clj-http "3.7.0"]
                  [environ "1.1.0"]
                  [funcool/cuerdas "2.0.4"]
                  [com.draines/postal "2.0.2" :exclusions [commons-codec]]
