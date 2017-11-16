@@ -131,7 +131,7 @@
 (defn- check-runner
   [{:keys [id name host] :as ctx}]
   (let [start (. System (nanoTime))]
-    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:hostname host)."))
+    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:uri host)."))
     (try
       (execute-check ctx)
       (catch Throwable e
