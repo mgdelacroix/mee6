@@ -10,6 +10,8 @@
 
 ;; --- Configuration file spec.
 
+(s/def :config/database string?)
+
 (s/def :host/hostname string?)
 (s/def :host/key string?)
 
@@ -25,8 +27,8 @@
 
 (s/def :config/check (s/keys :req-un [:check/hosts
                                       :check/cron
-                                      :check/module
-                                      :check/notify]))
+                                      :check/module]
+                             :opt-un [:check/notify]))
 
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
 
@@ -62,7 +64,8 @@
                #(not (and (:ssl %)
                           (:tls %))))))
 
-(s/def ::config (s/keys :req-un [:config/hosts
+(s/def ::config (s/keys :req-un [:config/database
+                                 :config/hosts
                                  :config/checks
                                  :config/notify
                                  :config/mail

@@ -1,6 +1,7 @@
 (ns mee6.http
   (:require [mount.core :refer [defstate]]
             [ring.adapter.jetty :as jetty]
+            [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.http.home :as home]
             [mee6.http.detail :as detail]))
@@ -40,6 +41,7 @@
 (defn start
   [{:keys [http] :as config}]
   (when http
+    (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)]
       (jetty/run-jetty #'router options))))
 
