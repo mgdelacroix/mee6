@@ -1,4 +1,5 @@
 database: state.db
+log-level: debug
 
 hosts:
   targaryen:
