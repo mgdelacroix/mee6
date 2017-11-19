@@ -1,7 +1,7 @@
 (ns mee6.modules.http-keepalive
   (:require [mee6.modules :as mod]
             [cuerdas.core :as str]
-            [clj-http.client :as http]))
+            [rxhttp.core :as http]))
 
 ;; TODO: allow specicy an alert on the latency value
 
@@ -21,15 +21,9 @@
 
 (defn- perform-request
   [{:keys [host] :as ctx}]
-  (let [method (extract-http-method ctx)
-        uri (:uri host)]
-    (try
-      (case method
-        "head" (http/head uri)
-        "get" (http/get uri)
-        "options" (http/options uri))
-      (catch clojure.lang.ExceptionInfo e
-        (ex-data e)))))
+  (let [method (keyword (extract-http-method ctx))
+        url (:uri host)]
+    (http/send!! {:method method :url url})))
 
 (defn- run
   [ctx local]
