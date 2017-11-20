@@ -74,8 +74,6 @@
         normal-out (if (:humanized local)
                      (:humanized local)
                      (dissoc local :out :err :exit))]
-
-    (println check)
     [:div#main-content.content
      [:section#items
       (body-content-summary state)

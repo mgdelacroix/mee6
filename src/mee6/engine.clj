@@ -22,14 +22,6 @@
 
 ;; --- Checks Parsing & Reconciliation
 
-(defn- get-by-keywordized-id
-  "Helper that retrieves the value referenced by the
-  keywordiced id."
-  [coll id]
-  (when id
-    (->> (keyword id)
-         (get coll))))
-
 (defn- digest
   "Given the check essential data, calculates the sha256 hash of
   its msgpack representation."
@@ -47,12 +39,24 @@
         hash (digest data)]
     (assoc check :id hash)))
 
+(defn resolve-host
+  [{:keys [hosts] :as config} hostname]
+  (cond
+    (= hostname "localhost") ::localhost ;; a special case
+    (string? hostname) (get hosts (keyword hostname))
+    :else nil))
+
+(defn resolve-notify
+  [{:keys [notify] :as config} notifyname]
+  (when (string? notifyname)
+    (get notify (keyword notifyname))))
+
 (defn- calculate-checks
-  [{:keys [hosts checks notify] :as config}]
-  (for [check checks
+  [config]
+  (for [check (:checks config)
         hostname (:hosts check)
-        :let [host (get-by-keywordized-id hosts hostname)
-              notify (get-by-keywordized-id notify (:notify check))]
+        :let [host (resolve-host config hostname)
+              notify (resolve-notify config (:notify check))]
         :while host]
     (-> (dissoc check :hosts)
         (assoc :host host :notify notify)

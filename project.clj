@@ -11,6 +11,7 @@
                  [org.quartz-scheduler/quartz "2.3.0"]
                  [org.quartz-scheduler/quartz-jobs "2.3.0"]
                  [commons-codec/commons-codec "1.11"]
+                 [cheshire "5.8.0"]
 
                  [com.cognitect/transit-clj "0.8.300"]
                  [funcool/datoteka "1.0.0"]
