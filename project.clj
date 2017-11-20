@@ -17,6 +17,7 @@
                  [io.forward/yaml "1.0.6"]
                  [ring "1.6.2"]
                  [mount "0.1.11"]
+                 [funcool/rxhttp "1.0.0-SNAPSHOT"]
                  [environ "1.1.0"]
                  [funcool/cuerdas "2.0.4"]
                  [com.draines/postal "2.0.2" :exclusions [commons-codec]]
