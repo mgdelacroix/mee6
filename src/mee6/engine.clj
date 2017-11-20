@@ -1,15 +1,14 @@
 (ns mee6.engine
   "Monitoring engine namespace."
   (:require [clojure.spec.alpha :as s]
-            [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
+            [mount.core :as mount :refer [defstate]]
             [mee6.time :as dt]
             [mee6.transit :as t]
             [mee6.modules :as mod]
             [mee6.database :refer [state]]
             [mee6.scheduler :as schd]
             [mee6.config :as cfg]
-            [mee6.uuid :as uuid]
             [mee6.notifications :as notifications]
             [mee6.logging :as log])
   (:import java.security.MessageDigest
@@ -131,7 +130,7 @@
 (defn- check-runner
   [{:keys [id name host] :as ctx}]
   (let [start (. System (nanoTime))]
-    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:hostname host)."))
+    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:uri host)."))
     (try
       (execute-check ctx)
       (catch Throwable e

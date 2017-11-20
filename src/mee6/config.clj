@@ -12,10 +12,11 @@
 
 (s/def :config/database string?)
 
-(s/def :host/hostname string?)
+(s/def :host/uri string?)
 (s/def :host/key string?)
 
-(s/def :config/host (s/keys :req-un [:host/hostname]
+(s/def :config/log-level #{"info" "debug" "error"})
+(s/def :config/host (s/keys :req-un [:host/uri]
                             :opt-un [:host/key]))
 
 (s/def :config/hosts (s/map-of keyword? :config/host :min-count 1))
@@ -65,6 +66,7 @@
                           (:tls %))))))
 
 (s/def ::config (s/keys :req-un [:config/database
+                                 :config/log-level
                                  :config/hosts
                                  :config/checks
                                  :config/notify
