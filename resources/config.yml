@@ -1,8 +1,9 @@
 database: state.db
+log-level: debug
 
 hosts:
   targaryen:
-    hostname: targaryen
+    uri: targaryen
 
 checks:
   - name: disk usage on /dev/md1
