@@ -35,6 +35,8 @@ checks:
   - name: mariadb service
     hosts:
       - testhost
+    notify:
+      - sys
     cron: "*/10 * * * * ?"
     module: systemd-service
     service: mariadb
