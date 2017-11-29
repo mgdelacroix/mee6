@@ -10,7 +10,12 @@
 
 ;; --- Configuration file spec.
 
-(s/def :config/database string?)
+(s/def :database/path string?)
+(s/def :database/debounce int?)
+
+(s/def :config/database
+  (s/keys :req-un [:database/path]
+          :opt-un [:database/debounce]))
 
 (s/def :host/uri string?)
 (s/def :host/key string?)

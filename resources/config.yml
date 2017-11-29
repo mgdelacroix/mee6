@@ -1,4 +1,7 @@
-database: state.db
+database:
+  path: state.db
+  debounce: 3000
+
 log-level: debug
 
 hosts:
