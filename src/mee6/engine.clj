@@ -3,22 +3,16 @@
   (:require [clojure.spec.alpha :as s]
             [cuerdas.core :as str]
             [mount.core :as mount :refer [defstate]]
-            [mee6.time :as dt]
-            [mee6.transit :as t]
-            [mee6.modules :as mod]
-            [mee6.database :refer [state]]
-            [mee6.scheduler :as schd]
             [mee6.config :as cfg]
-            [mee6.notifications :as notifications]
-            [mee6.logging :as log])
+            [mee6.database :refer [state]]
+            [mee6.logging :as log]
+            [mee6.modules :as mod]
+            [mee6.scheduler :as schd]
+            [mee6.services :as sv]
+            [mee6.time :as dt]
+            [mee6.transit :as t])
   (:import java.security.MessageDigest
            org.apache.commons.codec.binary.Base64))
-
-;; --- Spec
-
-(s/def ::jobs (s/coll-of string? :kind vector?))
-(s/def ::scheduler any?)
-(s/def ::engine (s/keys :req-un [::jobs ::scheduler]))
 
 ;; --- Checks Parsing & Reconciliation
 
@@ -39,27 +33,27 @@
         hash (digest data)]
     (assoc check :id hash)))
 
-(defn resolve-host
-  [{:keys [hosts] :as config} hostname]
-  (cond
-    (= hostname "localhost") ::localhost ;; a special case
-    (string? hostname) (get hosts (keyword hostname))
-    :else nil))
+(defn- resolve-host
+  [{:keys [hosts] :as config} id]
+  (if (= id "localhost")
+    ::localhost ;; a special case
+    (let [id (keyword id)]
+      (some-> (get hosts id)
+              (assoc :id id)))))
 
-(defn resolve-notify
-  [{:keys [notify] :as config} notifyname]
-  (when (string? notifyname)
-    (get notify (keyword notifyname))))
+(defn- resolve-notify-group
+  [{:keys [notify] :as config} id]
+  (when (string? id)
+    (get notify (keyword id))))
 
 (defn- calculate-checks
   [config]
   (for [check (:checks config)
-        hostname (:hosts check)
-        :let [host (resolve-host config hostname)
-              notify (resolve-notify config (:notify check))]
+        hostid (:hosts check)
+        :let [host (resolve-host config hostid)]
         :while host]
     (-> (dissoc check :hosts)
-        (assoc :host host :notify notify)
+        (assoc :host host)
         (assoc-identifier))))
 
 (defn- load-checks
@@ -87,19 +81,31 @@
 
 (defn- resolve-module
   "Resolve the module and return the module instance."
-  [name ctx]
-  (let [mns (str "mee6.modules." name)
+  [{:keys [module] :as ctx}]
+  (let [mns (str "mee6.modules." module)
         sym (symbol (str mns "/instance"))]
     (require (symbol mns))
     (let [factory (safe-resolve sym)]
       (when (nil? factory) (throw (ex-info "Module does not exists" {:name name})))
       (factory ctx))))
 
+(defn- notify-change!
+  [& {:keys [check config local error current-status previous-status]}]
+  (doseq [id (or (:notify check) [])]
+    (when-let [group (resolve-notify-group config id)]
+      (sv/emit! (keyword "notifications" (:type group))
+                {:check check
+                 :local local
+                 :error error
+                 :notify-group group
+                 :current-status current-status
+                 :previous-status previous-status}))))
+
 (defn- execute-check
   "A function executed by the quartz job to run the check."
-  [{:keys [id module host notify name] :as ctx}]
-  (let [module (resolve-module module ctx)
-        data (get-in @state [:check id] {})
+  [config {:keys [id] :as check}]
+  (let [module (resolve-module check)
+        data (get-in @state [:checks id] {})
         local (mod/-run module (:local data))
         prev-status (:status data)
         curr-status (mod/-check module local)]
@@ -110,15 +116,16 @@
                  (assoc :status curr-status)
                  (assoc :updated-at (dt/now))
                  (assoc :local local))))
-    (when notify
-      (if prev-status
-        (when (not= prev-status curr-status)
-          (notifications/send-all ctx curr-status local))
-        (when (not= curr-status :green)
-          (notifications/send-all ctx curr-status local))))))
+    (when (or (and prev-status (not= prev-status curr-status))
+              (and (not prev-status) (not= curr-status :green)))
+      (notify-change! :config config
+                      :check check
+                      :local local
+                      :current-status curr-status
+                      :previous-status prev-status))))
 
 (defn- handle-exception
-  [{:keys [id notify] :as ctx} exception]
+  [config {:keys [id] :as check} exception]
   (let [prev-status (get-in @state [:checks id :status])
         error (unwrap-exception exception)]
     (swap! state update-in [:checks id]
@@ -127,25 +134,28 @@
                  (assoc :status :grey)
                  (assoc :updated-at (dt/now))
                  (assoc :error error))))
-    (when (and notify (or (not prev-status)
-                          (not= prev-status :grey)))
-      (notifications/send-exception-all ctx error))))
+    (when (or (not prev-status) (not= prev-status :grey))
+      (notify-change! :config config
+                      :check check
+                      :error error
+                      :current-status :grey
+                      :previous-status prev-status))))
 
 (defn- check-runner
-  [{:keys [id name host] :as ctx}]
+  [{:keys [id name host] :as check} config]
   (let [start (. System (nanoTime))]
     (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:uri host)."))
     (try
-      (execute-check ctx)
-      (catch Throwable e
-        (handle-exception ctx e))
+      (execute-check config check)
+      (catch Throwable exception
+        (handle-exception config check exception))
       (finally
         (let [ms (/ (double (- (. System (nanoTime)) start)) 1000000.0)]
           (log/dbg (str/istr "Check ~{id} finished in ~{ms}ms.")))))))
 
 (defn- engine?
   [v]
-  (s/valid? ::engine v))
+  (boolean (::engine v)))
 
 (defn start
   "Start the monitoring engine."
@@ -154,16 +164,17 @@
          (cfg/config? config)]}
   (letfn [(schedule-job [ctx]
             (let [opts (select-keys ctx [:cron :interval])]
-              (schd/schedule! scheduler check-runner [ctx] opts)))]
+              (schd/schedule! scheduler check-runner [ctx config] opts)))]
     (log/inf "Starting monitoring engine.")
     (let [jobs (reduce #(conj %1 (schedule-job %2)) [] checks)]
       (log/inf "Started" (count jobs) "jobs.")
-      {:jobs jobs
-       :scheduler scheduler})))
+      {::engine true
+       ::jobs jobs
+       ::scheduler scheduler})))
 
 (defn stop
   "Stop the monitoring engine."
-  [{:keys [jobs scheduler] :as engine}]
+  [{:keys [::jobs ::scheduler] :as engine}]
   {:pre [(engine? engine)]}
   (log/inf "Stoping monitoring engine.")
   (let [unschedule-job (partial schd/unschedule! scheduler)]

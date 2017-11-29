@@ -46,11 +46,11 @@ checks:
 
 notify:
   sys:
-    description: we rock!
+    type: "email"
     emails:
       - me@example.com
 
-mail:
+email:
   from: mee6@example.com
   mode: console  # local /smtp / console
 
