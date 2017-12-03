@@ -1,51 +1,43 @@
 database: state.db
+log-level: debug
 
 hosts:
-  targaryen:
-    hostname: targaryen
+  testhost:
+    uri: localhost
 
 checks:
-  - name: disk usage on /dev/md1
-    hosts:
-      - targaryen
+  - name: http status
     cron: "*/10 * * * * ?"
-    notify: sys
+    hosts:
+      - testhost
+    url: https://httpbin.org/status/200
+    module: http-keepalive
+    http-method: "head"
+    expected-statuses:
+      - 200
+      - 201
+
+  - name: special script
+    hosts:
+      - testhost
+    cron: "*/10 * * * * ?"
+    module: script
+    file: /tmp/myscript
+
+  - name: disk usage on /dev/sda1
+    hosts:
+      - testhost
+    cron: "*/10 * * * * ?"
     module: disk-usage
-    device: /dev/md1
+    device: /dev/sda
     threshold: 80
 
-  - name: docker service
+  - name: mariadb service
     hosts:
-      - targaryen
+      - testhost
     cron: "*/10 * * * * ?"
-    notify: sys
-    module: service
-    service: docker
-
-# - name: special script
-#   hosts:
-#     - targaryen
-#   cron: "*/5 * * * * ?"
-#   notify: sys
-#   module: script
-#   file: /tmp/myscript
-
-# - name: check if nginx is up and running
-#   hosts:
-#     - baoqu
-#   cron: "*/5 * * * * ?"
-#   notify: test
-#   module: service
-#   service: nginx
-#
-# - name: say hi
-#   hosts:
-#     - entity
-#   cron: "*/5 * * * * ?"
-#   notify: test
-#   module: script
-#   file: /tmp/myscript
-#   # args: noneeded
+    module: systemd-service
+    service: mariadb
 
 notify:
   sys:

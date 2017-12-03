@@ -4,7 +4,6 @@
             [clojure.pprint :refer [pprint]]
             [hiccup.page :refer [html5]]
             [yaml.core :as yaml]
-            [mee6.uuid :as uuid]
             [mee6.engine :as engine]
             [mee6.database :refer [state]]
             [mee6.http.common :refer [html-head body-header]]
@@ -75,8 +74,6 @@
         normal-out (if (:humanized local)
                      (:humanized local)
                      (dissoc local :out :err :exit))]
-
-    (println check)
     [:div#main-content.content
      [:section#items
       (body-content-summary state)

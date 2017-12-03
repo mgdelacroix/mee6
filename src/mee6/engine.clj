@@ -1,15 +1,14 @@
 (ns mee6.engine
   "Monitoring engine namespace."
   (:require [clojure.spec.alpha :as s]
-            [mount.core :as mount :refer [defstate]]
             [cuerdas.core :as str]
+            [mount.core :as mount :refer [defstate]]
             [mee6.time :as dt]
             [mee6.transit :as t]
             [mee6.modules :as mod]
             [mee6.database :refer [state]]
             [mee6.scheduler :as schd]
             [mee6.config :as cfg]
-            [mee6.uuid :as uuid]
             [mee6.notifications :as notifications]
             [mee6.logging :as log])
   (:import java.security.MessageDigest
@@ -22,14 +21,6 @@
 (s/def ::engine (s/keys :req-un [::jobs ::scheduler]))
 
 ;; --- Checks Parsing & Reconciliation
-
-(defn- get-by-keywordized-id
-  "Helper that retrieves the value referenced by the
-  keywordiced id."
-  [coll id]
-  (when id
-    (->> (keyword id)
-         (get coll))))
 
 (defn- digest
   "Given the check essential data, calculates the sha256 hash of
@@ -48,12 +39,24 @@
         hash (digest data)]
     (assoc check :id hash)))
 
+(defn resolve-host
+  [{:keys [hosts] :as config} hostname]
+  (cond
+    (= hostname "localhost") ::localhost ;; a special case
+    (string? hostname) (get hosts (keyword hostname))
+    :else nil))
+
+(defn resolve-notify
+  [{:keys [notify] :as config} notifyname]
+  (when (string? notifyname)
+    (get notify (keyword notifyname))))
+
 (defn- calculate-checks
-  [{:keys [hosts checks notify] :as config}]
-  (for [check checks
+  [config]
+  (for [check (:checks config)
         hostname (:hosts check)
-        :let [host (get-by-keywordized-id hosts hostname)
-              notify (get-by-keywordized-id notify (:notify check))]
+        :let [host (resolve-host config hostname)
+              notify (resolve-notify config (:notify check))]
         :while host]
     (-> (dissoc check :hosts)
         (assoc :host host :notify notify)
@@ -131,7 +134,7 @@
 (defn- check-runner
   [{:keys [id name host] :as ctx}]
   (let [start (. System (nanoTime))]
-    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:hostname host)."))
+    (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:uri host)."))
     (try
       (execute-check ctx)
       (catch Throwable e
