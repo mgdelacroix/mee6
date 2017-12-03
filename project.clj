@@ -3,10 +3,11 @@
   :url ""
   :license {:name "MIT"
             :url "https://opensource.org/licenses/MIT"}
-  :dependencies [[org.clojure/clojure "1.9.0-beta2"]
+  :dependencies [[org.clojure/clojure "1.9.0-RC1"]
                  [org.clojure/tools.namespace "0.2.11"]
 
-                 [com.taoensso/timbre "4.10.0"]
+                 [com.taoensso/timbre "4.10.0"
+                  :exclusions [org.clojure/tools.reader]]
                  [org.slf4j/slf4j-nop "1.7.25"]
                  [org.quartz-scheduler/quartz "2.3.0"]
                  [org.quartz-scheduler/quartz-jobs "2.3.0"]
@@ -16,7 +17,8 @@
                  [com.cognitect/transit-clj "0.8.300"]
                  [funcool/datoteka "1.0.0"]
                  [io.forward/yaml "1.0.6"]
-                 [ring "1.6.2"]
+                 [org.clojure/core.async "0.3.465"]
+                 [ring "1.6.3"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
                  [funcool/cuerdas "2.0.4"]

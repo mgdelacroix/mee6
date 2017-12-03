@@ -1,4 +1,7 @@
-database: state.db
+database:
+  path: state.db
+  debounce: 3000
+
 log-level: debug
 
 hosts:
@@ -35,17 +38,19 @@ checks:
   - name: mariadb service
     hosts:
       - testhost
+    notify:
+      - sys
     cron: "*/10 * * * * ?"
     module: systemd-service
     service: mariadb
 
 notify:
   sys:
-    description: we rock!
+    type: "email"
     emails:
       - me@example.com
 
-mail:
+email:
   from: mee6@example.com
   mode: console  # local /smtp / console
 

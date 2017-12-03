@@ -10,7 +10,12 @@
 
 ;; --- Configuration file spec.
 
-(s/def :config/database string?)
+(s/def :database/path string?)
+(s/def :database/debounce int?)
+
+(s/def :config/database
+  (s/keys :req-un [:database/path]
+          :opt-un [:database/debounce]))
 
 (s/def :host/uri string?)
 (s/def :host/key string?)
@@ -24,53 +29,47 @@
 (s/def :check/hosts (s/coll-of string? :kind vector? :min-count 1))
 (s/def :check/cron string?)
 (s/def :check/module string?)
-(s/def :check/notify string?)
 
+(s/def :check/notify (s/coll-of string? :kind vector? :min-count 0))
 (s/def :config/check (s/keys :req-un [:check/hosts
                                       :check/cron
                                       :check/module]
                              :opt-un [:check/notify]))
 
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
+(s/def :config/notify (s/map-of keyword? map?))
 
-(s/def :notify/description string?)
-(s/def :notify/emails (s/coll-of string? :kind vector? :min-count 1))
-
-(s/def :config/single-notify (s/keys :req-un [:notify/description
-                                              :notify/emails]))
-
-(s/def :config/notify (s/map-of keyword? :config/single-notify))
-
-(s/def :mail/from string?)
-(s/def :mail/mode string?)
-(s/def :mail/host string?)
-(s/def :mail/user string?)
-(s/def :mail/pass string?)
-(s/def :mail/ssl boolean?)
-(s/def :mail/tls boolean?)
-(s/def :mail/port int?)
+(s/def :email/from string?)
+(s/def :email/mode string?)
+(s/def :email/host string?)
+(s/def :email/user string?)
+(s/def :email/pass string?)
+(s/def :email/ssl boolean?)
+(s/def :email/tls boolean?)
+(s/def :email/port int?)
 
 (s/def :http/port int?)
 (s/def :config/http
   (s/keys :req-un [:http/port]))
 
-(s/def :config/mail
+(s/def :config/email
   (s/or :local
-        (s/and (s/keys :req-un [:mail/from :mail/mode])
+        (s/and (s/keys :req-un [:email/from :email/mode])
                #(#{"console" "local"} (:mode %)))
         :smtp
-        (s/and (s/keys :req-un [:mail/from :mail/mode]
-                       :opt-un [:mail/user :mail/pass :mail/ssl :mail/tls :mail/port])
+        (s/and (s/keys :req-un [:email/from :email/mode]
+                       :opt-un [:email/user :email/pass
+                                :email/ssl :email/tls :email/port])
                #(= (:mode %) "smtp")
                #(not (and (:ssl %)
                           (:tls %))))))
 
-(s/def ::config (s/keys :req-un [:config/database
+(s/def ::config (s/keys :req-un [:config/hosts
+                                 :config/checks]
+                        :opt-un [:config/database
                                  :config/log-level
-                                 :config/hosts
-                                 :config/checks
                                  :config/notify
-                                 :config/mail
+                                 :config/email
                                  :config/http]))
 
 ;; --- Configuration file validation and loading

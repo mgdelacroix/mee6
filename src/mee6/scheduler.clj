@@ -73,7 +73,7 @@
   [{:keys [name daemon? threads thread-priority]
     :or {name "mee6-scheduler"
          daemon? true
-         threads 1
+         threads (.availableProcessors (Runtime/getRuntime))
          thread-priority Thread/MIN_PRIORITY}}]
   (map->props
    {"org.quartz.threadPool.threadCount" threads

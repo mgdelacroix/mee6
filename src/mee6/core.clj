@@ -4,6 +4,8 @@
             [mee6.engine :as ngx]
             [mee6.scheduler]
             [mee6.http]
+            [mee6.services]
+            [mee6.services.email]
             [mee6.logging :as log])
   (:gen-class))
 
