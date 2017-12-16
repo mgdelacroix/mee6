@@ -36,7 +36,7 @@
                         :percentage percentage})]]]))
 
 
-(defmethod render-check "service"
+(defmethod render-check "systemd-service"
   [check local]
   [:div
    [:h3 "Latest status:"]
@@ -47,7 +47,7 @@
    [:section.code
     [:pre (:lastlog local)]]])
 
-(defmethod render-check "script"
+(defmethod render-check "user-script"
   [check {:keys [kvpairs stdout] :as local}]
   [:div
    (when kvpairs

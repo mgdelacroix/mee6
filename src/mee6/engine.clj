@@ -67,27 +67,12 @@
 
 (defn- unwrap-exception
   [e]
-  (if (instance? clojure.lang.ExceptionInfo e)
-    (merge {:message (.getMessage e)} (ex-data e))
-    {:message (.getMessage e)
-     :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))}))
-
-(defn- safe-resolve
-  [sym]
-  (try
-    (resolve sym)
-    (catch Throwable e
-      nil)))
-
-(defn- resolve-module
-  "Resolve the module and return the module instance."
-  [{:keys [module] :as ctx}]
-  (let [mns (str "mee6.modules." module)
-        sym (symbol (str mns "/instance"))]
-    (require (symbol mns))
-    (let [factory (safe-resolve sym)]
-      (when (nil? factory) (throw (ex-info "Module does not exists" {:name name})))
-      (factory ctx))))
+  (let [message (.getMessage e)]
+    (if (instance? clojure.lang.ExceptionInfo e)
+      (-> (ex-data e)
+          (assoc :message message))
+      {:message message
+       :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))})))
 
 (defn- notify-change!
   [& {:keys [check config local error current-status previous-status]}]
@@ -103,26 +88,21 @@
 
 (defn- execute-check
   "A function executed by the quartz job to run the check."
-  [config {:keys [id] :as check}]
-  (let [module (resolve-module check)
-        data (get-in @state [:checks id] {})
-        local (mod/-run module (:local data))
-        prev-status (:status data)
-        curr-status (mod/-check module local)]
+  [config {:keys [id] :as check} {:keys [status local] :as data}]
+  (let [[curr-status local] (mod/execute check local)]
     (swap! state update-in [:checks id]
            (fn [result]
-             (-> result
-                 (dissoc :error)
+             (-> (dissoc result :error)
                  (assoc :status curr-status)
                  (assoc :updated-at (dt/now))
                  (assoc :local local))))
-    (when (or (and prev-status (not= prev-status curr-status))
-              (and (not prev-status) (not= curr-status :green)))
+    (when (or (and status (not= status curr-status))
+              (and (not status) (not= curr-status :green)))
       (notify-change! :config config
                       :check check
                       :local local
                       :current-status curr-status
-                      :previous-status prev-status))))
+                      :previous-status status))))
 
 (defn- handle-exception
   [config {:keys [id] :as check} exception]
@@ -143,10 +123,11 @@
 
 (defn- check-runner
   [{:keys [id name host] :as check} config]
-  (let [start (. System (nanoTime))]
+  (let [start (. System (nanoTime))
+        data (get-in @state [:checks id])]
     (log/dbg (str/istr "Running check ~{id} \"~{name}\" on ~(:uri host)."))
     (try
-      (execute-check config check)
+      (execute-check config check data)
       (catch Throwable exception
         (handle-exception config check exception))
       (finally

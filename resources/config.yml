@@ -24,7 +24,7 @@ checks:
     hosts:
       - testhost
     cron: "*/10 * * * * ?"
-    module: script
+    module: user-script
     file: /tmp/myscript
 
   - name: disk usage on /dev/sda1
@@ -32,14 +32,12 @@ checks:
       - testhost
     cron: "*/10 * * * * ?"
     module: disk-usage
-    device: /dev/sda
+    device: /dev/sda1
     threshold: 80
 
   - name: mariadb service
     hosts:
       - testhost
-    notify:
-      - sys
     cron: "*/10 * * * * ?"
     module: systemd-service
     service: mariadb
