@@ -1,12 +1,27 @@
+# The database service configuration. If not provided, the persistence
+# service will be disabled, and all information will only reside on memory.
+
 database:
-  path: state.db
-  debounce: 3000
+  path: state.db  # A path where the db will be saved
+  debounce: 3000  # A timeframe for wait on state modifications before full disk persistence.
+
+# The logging configuration.
 
 log-level: debug
+
+# A directory list when to search additional modules (optional)
+
+modules:
+ - target/modules
+ - /usr/share/mee6/modules
+
+# A map of of posible hosts
 
 hosts:
   testhost:
     uri: localhost
+
+# A list of all checks
 
 checks:
   - name: http status
@@ -42,15 +57,23 @@ checks:
     module: systemd-service
     service: mariadb
 
+# A map of notification groups (optional)
+
 notify:
   sys:
     type: "email"
     emails:
       - me@example.com
 
+# The email service configuration. If no configuration is provided,
+# the email service will be disabled.
+
 email:
   from: mee6@example.com
   mode: console  # local /smtp / console
+
+# The http server service configuration. If no configuration is
+# provided, the http service will be disabled.
 
 http:
   port: 3001

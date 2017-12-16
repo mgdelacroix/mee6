@@ -6,16 +6,27 @@
             [cheshire.core :as json]
             [datoteka.core :as fs]
             [cuerdas.core :as str]
+            [mee6.config :as cfg]
             [mee6.uuid :as uuid]))
 
-;; TODO: allow user speicify in the config a directory for additonal modules.
-;; TODO: allow user use different language for scripts
-;; NOTE: for now, it uses a simplest approach loading scripts from the classpath.
+(defn- resolve-from-classpath
+  [module]
+  {:pre [(string? module)]}
+  (io/resource (str/istr "scripts/~{module}.py")))
+
+(defn- resolve-from-userpath
+  [module]
+  {:pre [(string? module)]}
+  (letfn [(resolve [path]
+            (let [path (fs/join path (str module ".py"))]
+              (when (fs/regular-file? path)
+                (reduced path))))]
+    (reduce #(resolve %2) nil (:modules cfg/config []))))
 
 (defn- resolve-script
   [module]
-  {:pre [(string? module)]}
-  (let [script (io/resource (str/istr "scripts/~{module}.py"))]
+  (let [script (or (resolve-from-classpath module)
+                   (resolve-from-userpath module))]
     (if (nil? script)
       (throw (ex-info (str/istr "Script not found for module '~{module}'.") {}))
       script)))

@@ -4,6 +4,7 @@
             [clojure.walk :refer [keywordize-keys]]
             [clojure.spec.alpha :as s]
             [clojure.pprint :refer [pprint]]
+            [datoteka.core :as fs]
             [environ.core :refer [env]]
             [yaml.core :as yaml]
             [mee6.exceptions :as exc]))
@@ -16,6 +17,16 @@
 (s/def :config/database
   (s/keys :req-un [:database/path]
           :opt-un [:database/debounce]))
+
+(defn path-conformer
+  [v]
+  (if (string? v)
+    (fs/path v)
+    ::s/invalid))
+
+(s/def :config/modules-item (s/conformer path-conformer))
+(s/def :config/modules (s/coll-of :config/modules-item :kind vector? :min-count 1))
+
 
 (s/def :host/uri string?)
 (s/def :host/key string?)
@@ -53,22 +64,16 @@
   (s/keys :req-un [:http/port]))
 
 (s/def :config/email
-  (s/or :local
-        (s/and (s/keys :req-un [:email/from :email/mode])
-               #(#{"console" "local"} (:mode %)))
-        :smtp
-        (s/and (s/keys :req-un [:email/from :email/mode]
-                       :opt-un [:email/user :email/pass
-                                :email/ssl :email/tls :email/port])
-               #(= (:mode %) "smtp")
-               #(not (and (:ssl %)
-                          (:tls %))))))
+  (s/keys :req-un [:email/from :email/mode]
+          :opt-un [:email/user :email/pass
+                   :email/ssl :email/tls :email/port]))
 
 (s/def ::config (s/keys :req-un [:config/hosts
                                  :config/checks]
                         :opt-un [:config/database
                                  :config/log-level
                                  :config/notify
+                                 :config/modules
                                  :config/email
                                  :config/http]))
 
@@ -76,11 +81,12 @@
 
 (defn- validate
   [data]
-  (when-not (s/valid? ::config data)
-    (exc/raise :message "Invalid configuration."
-               :type :validation
-               :explain (s/explain-str ::config data)))
-  data)
+  (let [config (s/conform ::config data)]
+    (when (= config ::s/invalid)
+      (exc/raise :message "Invalid configuration."
+                 :type :validation
+                 :explain (s/explain-str ::config data)))
+    config))
 
 (defn load
   []
@@ -88,10 +94,6 @@
       (yaml/from-file)
       (keywordize-keys)
       (validate)))
-
-(defn config?
-  [val]
-  (s/valid? ::config val))
 
 (defstate config
   :start (load))

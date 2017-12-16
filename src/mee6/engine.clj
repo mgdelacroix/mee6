@@ -141,8 +141,6 @@
 (defn start
   "Start the monitoring engine."
   [scheduler config]
-  {:pre [(any? scheduler)
-         (cfg/config? config)]}
   (letfn [(schedule-job [ctx]
             (let [opts (select-keys ctx [:cron :interval])]
               (schd/schedule! scheduler check-runner [ctx config] opts)))]
