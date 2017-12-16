@@ -1,6 +1,7 @@
 (ns mee6.engine
   "Monitoring engine namespace."
   (:require [clojure.spec.alpha :as s]
+            [clojure.stacktrace :as st]
             [cuerdas.core :as str]
             [mount.core :as mount :refer [defstate]]
             [mee6.config :as cfg]
@@ -72,7 +73,7 @@
       (-> (ex-data e)
           (assoc :message message))
       {:message message
-       :stacktrace (with-out-str (clojure.stacktrace/print-stack-trace e))})))
+       :stacktrace (with-out-str (st/print-stack-trace e))})))
 
 (defn- notify-change!
   [& {:keys [check config local error current-status previous-status]}]
