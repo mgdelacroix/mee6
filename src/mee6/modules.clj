@@ -59,19 +59,19 @@
   [{:keys [module host] :as check} local]
   (let [local (or local {})
         args (json/encode {:params check :local (or local {})})
-        script (resolve-script module)]
-    (let [{:keys [exit out err] :as result} (run-script host script args)]
-      (if (zero? exit)
-        (let [out (json/decode out true)]
-          (if (s/valid? ::script-output out)
-            [(keyword (:status out)) (:local out)]
-            (throw (ex-info "Invalid output from script"
-                            {:hint (s/explain-str ::script-output out)}))))
-        (try
-          (let [content (json/decode err true)]
-            (throw (ex-info "Script returns an error" content)))
-          (catch com.fasterxml.jackson.core.JsonParseException e
-            (throw (ex-info "Error on executing the script" result))))))))
+        script (resolve-script module)
+        {:keys [exit out err] :as result} (run-script host script args)]
+    (if (zero? exit)
+      (let [out (json/decode out true)]
+        (if (s/valid? ::script-output out)
+          [(keyword (:status out)) (:local out)]
+          (throw (ex-info "Invalid output from script"
+                          {:hint (s/explain-str ::script-output out)}))))
+      (try
+        (let [content (json/decode err true)]
+          (throw (ex-info "Script returns an error" content)))
+        (catch com.fasterxml.jackson.core.JsonParseException e
+          (throw (ex-info "Error on executing the script" result)))))))
 
 (declare execute-user-script)
 
