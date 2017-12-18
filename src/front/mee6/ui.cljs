@@ -15,15 +15,15 @@
 (mx/defc app
   {:mixins [mx/reactive]}
   []
-  (let [{:keys [route]} (mx/react st/state)]
+  (let [{:keys [route] :as state} (mx/react st/state)]
     (case (:id route)
       :home (home)
       :detail (detail)
       (home))))
 
 (def ^:private routes
-  [["/" :home
-    "/detail/:id" :detail]])
+  [["/" :home]
+   ["/detail/:id" :detail]])
 
 (defn init
   []

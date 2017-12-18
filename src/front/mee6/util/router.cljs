@@ -4,6 +4,7 @@
             [potok.core :as ptk]))
 
 (defonce +router+ nil)
+(defonce +default-route+ :home)
 
 ;; --- Update Location (Event)
 
@@ -39,7 +40,7 @@
 ;; --- Public Api
 
 (defn init
-  [store routes {:keys [default] :or {default :auth/login}}]
+  [store routes {:keys [default] :or {default +default-route+}}]
   (let [opts {:on-navigate #(ptk/emit! store (update-location %1 %2))
               :default default}
         router (-> (r/router routes)

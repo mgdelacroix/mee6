@@ -1,5 +1,6 @@
 (ns mee6.store
-  (:require [potok.core :as ptk]))
+  (:require [beicon.core :as rx]
+            [potok.core :as ptk]))
 
 (defonce state (atom {}))
 (defonce store (ptk/store))
@@ -16,4 +17,5 @@
 
 (defn init
   []
-  (emit! initial-state))
+  (emit! initial-state)
+  (rx/to-atom store state))
