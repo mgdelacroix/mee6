@@ -48,7 +48,8 @@
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/main"
                         :asset-path "/js/main"
-                        :verbose true}}]}}
+                        :verbose true}}]}
+  :clean-targets ["resources/public/js"]}
 
  :dev {:main ^:skip-aot mee6.repl
        :plugins [[lein-ancient "0.6.15"]]}
