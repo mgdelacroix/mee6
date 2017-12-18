@@ -1,6 +1,8 @@
 (ns mee6.http
   (:require [mount.core :refer [defstate]]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.json :refer [wrap-json-body]]
             [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.http.graphql :as graphql]))
@@ -10,8 +12,8 @@
 (declare not-found)
 
 (def routes
-  [[#"^/graphql$" #'graphql/handler]
-   [#"^/graphiql$" #'graphql/graphiql-handler]])
+  [[#"^/graphql$" #'graphql/handle-graphql]
+   [#"^/graphiql$" #'graphql/handle-graphiql]])
 
 (defn router
   [{:keys [uri] :as request}]
@@ -41,8 +43,11 @@
   [{:keys [http] :as config}]
   (when http
     (log/inf "Starting http server on port" (:port http))
-    (let [options (merge defaults http)]
-      (jetty/run-jetty #'router options))))
+    (let [options (merge defaults http)
+          handler (-> router
+                      (wrap-params)
+                      (wrap-json-body {:keywords? true}))]
+      (jetty/run-jetty handler options))))
 
 (defn stop
   [server]

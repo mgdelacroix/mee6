@@ -4,23 +4,25 @@
 
                  [com.cognitect/transit-clj "0.8.300"]
                  [com.draines/postal "2.0.2" :exclusions [commons-codec]]
+                 [com.github.spullara.mustache.java/compiler "0.9.4"]
                  [com.taoensso/timbre "4.10.0" :exclusions [org.clojure/tools.reader]]
                  [com.walmartlabs/lacinia "0.23.0" :exclusions [clojure-future-spec]]
-                 [commons-codec/commons-codec "1.11"]
 
                  [io.forward/yaml "1.0.6"]
-                 [org.slf4j/slf4j-nop "1.7.25"]
                  [org.quartz-scheduler/quartz "2.3.0"]
                  [org.quartz-scheduler/quartz-jobs "2.3.0"]
+                 [org.slf4j/slf4j-nop "1.7.25"]
 
-                 [funcool/datoteka "1.0.0"]
                  [funcool/cuerdas "2.0.4"]
+                 [funcool/datoteka "1.0.0"]
+                 [ring/ring-json "0.4.0" :exclusions [ring/ring-core]]
 
+                 [commons-codec "1.11"]
                  [cheshire "5.8.0"]
-                 [ring "1.6.3"]
-                 [mount "0.1.11"]
+                 [hiccup "1.0.5"]
                  [environ "1.1.0"]
-                 [hiccup "1.0.5"]]
+                 [ring "1.6.3"]
+                 [mount "0.1.11"]]
   :source-paths ^:replace ["src/back"]}
 
  :front

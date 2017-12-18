@@ -3,7 +3,9 @@
             [com.walmartlabs.lacinia :refer [execute]]
             [com.walmartlabs.lacinia.util :refer [attach-resolvers]]
             [com.walmartlabs.lacinia.schema :as schema]
-            [cheshire.core :as json]))
+            [cuerdas.core :as str]
+            [cheshire.core :as json]
+            [mee6.template :as tmpl]))
 
 (def identity-conformer (schema/as-conformer identity))
 
@@ -36,16 +38,28 @@
       (attach-resolvers resolvers)
       (schema/compile)))
 
-(defn graphiql-handler
-  [req]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (slurp (io/resource "graphiql.html"))})
+;; --- Handlers
 
-(defn handler
+(defn serialize
+  [v]
+  (-> (json/encode v)
+      (str/replace #"\/" "\\/")))
+
+(defn handle-graphiql
   [req]
-  (let [query (get-in req [:query-params :q])
-        result (execute compiled-schema query nil nil)]
+  (let [ctx {:query (serialize (get-in req [:params "query"]))
+             :variables (serialize (get-in req [:params "variables"]))
+             :operation (serialize (get-in req [:params "operationName"]))}
+        body (tmpl/render "graphiql.html" ctx)]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body body}))
+
+(defn handle-graphql
+  [req]
+  (let [query (get-in req [:body :query])
+        variables (get-in req [:body :variables])
+        result (execute compiled-schema query variables nil)]
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body (json/encode result)}))
