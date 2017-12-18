@@ -19,6 +19,7 @@
                      :name {:type :String}
                      :cron {:type :String}
                      :host {:type :String}
+                     :module {:type :String}
                      :params {:type :dynobj
                               :resolve :get-params}
                      :status {:type :String
@@ -37,7 +38,7 @@
 
 (defn resolve-params
   [ctx args value]
-  (apply dissoc value [:id :name :cron :host]))
+  (apply dissoc value [:id :name :cron :host :module]))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
