@@ -24,10 +24,9 @@
 
  :front
  {:dependencies [[org.clojure/clojurescript "1.9.946"]
-                 [rum "0.10.8" :exclusions [cljsjs/react cljsjs/react-dom]]
-                 [cljsjs/react "15.6.2-2"]
-                 [cljsjs/react-dom "15.6.2-2"]
-                 [cljsjs/react-dom-server "15.6.2-2"]
+                 [funcool/rumext "1.1.0"]
+                 [rum "0.10.8" :exclusions [sablono]]
+                 [sablono "0.8.0"]
 
                  [funcool/beicon "4.1.0"]
                  [funcool/bide "1.6.0"]
@@ -38,7 +37,7 @@
   :cljsbuild
   {:builds [{:id "dev"
              :source-paths ["src/front"]
-             :figwheel true
+             :figwheel {:on-jsload "mee6.main/init"}
              :compiler {:main "mee6.main"
                         :cache-analysis false
                         :parallel-build false
@@ -49,7 +48,7 @@
                         :output-dir "resources/public/js/main"
                         :asset-path "/js/main"
                         :verbose true}}]}
-  :clean-targets ["resources/public/js"]}
+  :clean-targets ^{:protect false} ["resources/public/js"]}
 
  :dev {:main ^:skip-aot mee6.repl
        :plugins [[lein-ancient "0.6.15"]]}

@@ -1,10 +1,10 @@
 (ns mee6.main
-  (:require [mee6.store :as st]))
+  (:require [mee6.store :as st]
+            [mee6.ui :as ui]))
 
 (enable-console-print!)
 
-(println "Hello Mee6!")
-
 (defn ^:export init
   []
-  (st/init))
+  (st/init)
+  (ui/init))
