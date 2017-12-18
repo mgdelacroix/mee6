@@ -3,6 +3,9 @@
             [mount.core :as mount]
             [mee6.core]))
 
+;; set to avoid classpath collision when reloading
+(repl/set-refresh-dirs "src/back")
+
 (defn start
   []
   (mount/start))

@@ -3,16 +3,15 @@
             [ring.adapter.jetty :as jetty]
             [mee6.logging :as log]
             [mee6.config :as cfg]
-            [mee6.http.home :as home]
-            [mee6.http.detail :as detail]))
+            [mee6.http.graphql :as graphql]))
 
 ;; --- Router
 
 (declare not-found)
 
 (def routes
-  [[#"^/$" #'home/handler]
-   [#"^/detail/([^\/]+)" #'detail/handler]])
+  [[#"^/graphql$" #'graphql/handler]
+   [#"^/graphiql$" #'graphql/graphiql-handler]])
 
 (defn router
   [{:keys [uri] :as request}]

@@ -5,6 +5,7 @@
                  [com.cognitect/transit-clj "0.8.300"]
                  [com.draines/postal "2.0.2" :exclusions [commons-codec]]
                  [com.taoensso/timbre "4.10.0" :exclusions [org.clojure/tools.reader]]
+                 [com.walmartlabs/lacinia "0.23.0" :exclusions [clojure-future-spec]]
                  [commons-codec/commons-codec "1.11"]
 
                  [io.forward/yaml "1.0.6"]
@@ -20,7 +21,7 @@
                  [mount "0.1.11"]
                  [environ "1.1.0"]
                  [hiccup "1.0.5"]]
-  :source-paths ["src/back"]}
+  :source-paths ^:replace ["src/back"]}
 
  :front
  {:dependencies [[org.clojure/clojurescript "1.9.946"]
@@ -34,6 +35,7 @@
                  [funcool/lentes "1.2.0"]
                  [funcool/potok "2.3.0"]]
   :plugins [[lein-figwheel "0.5.14"]]
+  :source-paths ^:replace ["src/front"]
   :cljsbuild
   {:builds [{:id "dev"
              :source-paths ["src/front"]
