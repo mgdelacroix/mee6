@@ -4,6 +4,7 @@ import json
 import sys
 import subprocess
 import re
+import traceback
 
 def retrieve_available_devices():
     result = subprocess.run(["df", "-l"],  stdout=subprocess.PIPE)
@@ -20,37 +21,54 @@ def retrieve_available_devices():
             "used": int(parts[2])
         }
 
-def handle(params):
+def handle(params, local):
     device = None
-
     for item in retrieve_available_devices():
         if item["path"].startswith(params["device"]):
             device = item
             break;
 
     if not device:
-        raise RuntimeError("no device found")
+        raise RuntimeError("No device '{}' found".format(params["device"]))
 
-    return {
+    local.update({
         "capacity": device["capacity"],
         "used": device["used"]
-    }
+    })
+
+    percentage = (device["used"] * 100) // device["capacity"]
+    if percentage > params["threshold"]:
+        return {"status": "red", "local": local}
+    else:
+        return {"status": "green", "local": local}
 
 try:
     # Parse params
     if len(sys.argv) != 2:
         raise RuntimeError("invalid arguments")
-    params = json.loads(sys.argv[1])
+    args = json.loads(sys.argv[1])
 
     # Check the params
-    assert isinstance(params["device"], str), "missing `device` parameter"
+    assert isinstance(args["params"], dict), "missing params"
+    assert isinstance(args["local"], dict), "missing local"
+    assert isinstance(args["params"]["device"], str), "missing device parameter"
+
+    # Extract the data from args
+    params, local = args["params"], args["local"]
 
     # Execute the script main logic
-    result = handle(params)
+    result = handle(params, local)
+
+    # Format the result
+    result = json.dumps(result)
 
     # Return the output
-    print(json.dumps(result), file=sys.stdout, flush=True)
+    print(result, file=sys.stdout, flush=True)
     sys.exit(0);
+except RuntimeError as e:
+    print(json.dumps({"hint": str(e)}), file=sys.stderr, flush=True)
+    sys.exit(-1)
+
 except Exception as e:
-    print(json.dumps({"error": str(e)}), file=sys.stderr, flush=True)
+    traceback.print_exc(file=sys.stderr)
     sys.exit(-1);
