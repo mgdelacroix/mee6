@@ -5,7 +5,9 @@
             [com.walmartlabs.lacinia.schema :as schema]
             [cuerdas.core :as str]
             [cheshire.core :as json]
-            [mee6.template :as tmpl]))
+            [mee6.template :as tmpl]
+            [mee6.engine :as eng]
+            [mee6.database :as db]))
 
 (def identity-conformer (schema/as-conformer identity))
 
@@ -17,21 +19,31 @@
                      :name {:type :String}
                      :cron {:type :String}
                      :host {:type :String}
-                     :params {:type :dynobj}}}}
+                     :params {:type :dynobj
+                              :resolve :get-params}
+                     :status {:type :String
+                              :resolve :get-status}}}}
    :queries
    {:checks {:type '(list :check)
              :resolve :get-checks}}})
 
-(defn checks-resolver
+(defn resolve-checks
   [ctx args value]
-  (println "- Resolver:")
-  (println "| ctx" ctx)
-  (println "| args" args)
-  (println "| value" value)
-  [])
+  eng/checks)
+
+(defn resolve-params
+  [ctx args value]
+  (apply dissoc value [:id :name :cron :host]))
+
+(defn resolve-status
+  [ctx args {:keys [id] :as value}]
+  (some-> (get-in @db/state [:checks id :status])
+          (name)))
 
 (def resolvers
-  {:get-checks checks-resolver})
+  {:get-checks resolve-checks
+   :get-params resolve-params
+   :get-status resolve-status})
 
 (def compiled-schema
   (-> schema
