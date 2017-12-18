@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
     openjdk
     leiningen
     rlwrap
+    python3
   ];
 
   shellHook = ''

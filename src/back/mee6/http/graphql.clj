@@ -22,7 +22,11 @@
                      :params {:type :dynobj
                               :resolve :get-params}
                      :status {:type :String
-                              :resolve :get-status}}}}
+                              :resolve :get-status}
+                     :output {:type :dynobj
+                              :resolve :get-output}
+                     :error {:type :dynobj
+                             :resolve :get-error}}}}
    :queries
    {:checks {:type '(list :check)
              :resolve :get-checks}}})
@@ -36,14 +40,24 @@
   (apply dissoc value [:id :name :cron :host]))
 
 (defn resolve-status
-  [ctx args {:keys [id] :as value}]
+  [ctx args {:keys [id]}]
   (some-> (get-in @db/state [:checks id :status])
           (name)))
+
+(defn resolve-output
+  [ctx args {:keys [id]}]
+  (get-in @db/state [:checks id :local]))
+
+(defn resolve-error
+  [ctx args {:keys [id]}]
+  (get-in @db/state [:checks id :error]))
 
 (def resolvers
   {:get-checks resolve-checks
    :get-params resolve-params
-   :get-status resolve-status})
+   :get-status resolve-status
+   :get-output resolve-output
+   :get-error resolve-error})
 
 (def compiled-schema
   (-> schema

@@ -37,7 +37,7 @@
   (let [content (slurp script)
         tmpname (uuid/random-str)
         command (str/istr "cat > /tmp/~{tmpname}.py <<EOF\n~{content}\nEOF\n\n"
-                          "python3 /tmp/~{tmpname}.py '~{args}'")]
+                          "/usr/bin/env python3 /tmp/~{tmpname}.py '~{args}'")]
     (if (= host :mee6.engine/localhost)
       (shell/sh "bash" "-c" command)
       (shell/sh "timeout" "5" "ssh" "-q" uri command))))
@@ -69,7 +69,7 @@
                           {:hint (s/explain-str ::script-output out)}))))
       (try
         (let [content (json/decode err true)]
-          (throw (ex-info "Script returns an error" content)))
+          (throw (ex-info "Script returns an error" (or content {}))))
         (catch com.fasterxml.jackson.core.JsonParseException e
           (throw (ex-info "Error on executing the script" result)))))))
 
