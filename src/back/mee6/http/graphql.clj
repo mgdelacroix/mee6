@@ -5,6 +5,7 @@
             [com.walmartlabs.lacinia.schema :as schema]
             [cuerdas.core :as str]
             [cheshire.core :as json]
+            [yaml.core :as yaml]
             [mee6.template :as tmpl]
             [mee6.engine :as eng]
             [mee6.database :as db]))
@@ -27,7 +28,11 @@
                      :output {:type :dynobj
                               :resolve :get-output}
                      :error {:type :dynobj
-                             :resolve :get-error}}}}
+                             :resolve :get-error}
+                     :config {:type :String
+                              :args {:format {:type :String
+                                              :default-value "yaml"}}
+                              :resolve :get-config}}}}
    :queries
    {:checks {:type '(list :check)
              :resolve :get-checks}}})
@@ -53,12 +58,19 @@
   [ctx args {:keys [id]}]
   (get-in @db/state [:checks id :error]))
 
+(defn resolve-config
+  [ctx {:keys [format]} value]
+  (case format
+    "yaml" (yaml/generate-string value :dumper-options {:flow-style :block})
+    "json" (json/encode value)))
+
 (def resolvers
   {:get-checks resolve-checks
    :get-params resolve-params
    :get-status resolve-status
    :get-output resolve-output
-   :get-error resolve-error})
+   :get-error resolve-error
+   :get-config resolve-config})
 
 (def compiled-schema
   (-> schema
