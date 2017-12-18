@@ -1,7 +1,8 @@
 (ns mee6.ui
   (:require [rumext.core :as mx :include-macros true]
             [mee6.util.dom :as dom]
-            [mee6.store :as st]))
+            [mee6.store :as st]
+            [mee6.util.router :as rt]))
 
 (mx/defc home
   []
@@ -20,6 +21,11 @@
       :detail (detail)
       (home))))
 
+(def ^:private routes
+  [["/" :home
+    "/detail/:id" :detail]])
+
 (defn init
   []
+  (rt/init st/store routes {:default :home})
   (mx/mount (app) (dom/get-element "app")))
