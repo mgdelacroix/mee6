@@ -23,7 +23,17 @@
   :source-paths ["src/back"]}
 
  :front
- {:dependencies [[org.clojure/clojurescript "1.9.946"]]
+ {:dependencies [[org.clojure/clojurescript "1.9.946"]
+                 [rum "0.10.8" :exclusions [cljsjs/react cljsjs/react-dom]]
+                 [cljsjs/react "15.6.2-2"]
+                 [cljsjs/react-dom "15.6.2-2"]
+                 [cljsjs/react-dom-server "15.6.2-2"]
+
+                 [funcool/beicon "4.1.0"]
+                 [funcool/bide "1.6.0"]
+                 [funcool/cuerdas "2.0.4"]
+                 [funcool/lentes "1.2.0"]
+                 [funcool/potok "2.3.0"]]
   :plugins [[lein-figwheel "0.5.14"]]
   :cljsbuild
   {:builds [{:id "dev"

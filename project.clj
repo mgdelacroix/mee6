@@ -6,4 +6,5 @@
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :dependencies [[org.clojure/clojure "1.9.0"]]
   :aliases {"brepl" ["with-profiles" "+back" "repl"]
-            "frepl" ["with-profiles" "+front" "figwheel"]})
+            "frepl" ["with-profiles" "+front" "figwheel"]}
+  :plugins [[lein-ancient "0.6.15"]])
