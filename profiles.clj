@@ -56,7 +56,7 @@
                         :source-map true
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/main-dev"
-                        :asset-path "/js/main"
+                        :asset-path "/js/main-dev"
                         :verbose true}}
             {:id "prod"
              :source-paths ["src/front"]
