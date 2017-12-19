@@ -20,12 +20,15 @@
    {:check {:fields {:id {:type :ID}
                      :name {:type :String}
                      :cron {:type :String}
-                     :host {:type :String}
+                     :host {:type :String
+                            :resolve :get-host}
                      :module {:type :String}
                      :params {:type :dynobj :resolve :get-params}
                      :status {:type :String :resolve :get-status}
                      :output {:type :dynobj :resolve :get-output}
                      :error {:type :dynobj :resolve :get-error}
+                     :updatedAt {:type :String
+                                 :resolve :get-updated-at}
                      :config {:type :String
                               :args {:format {:type :String
                                               :default-value "yaml"}}
@@ -41,6 +44,10 @@
 (defn resolve-params
   [ctx args value]
   (apply dissoc value [:id :name :cron :host :module]))
+
+(defn resolve-host
+  [ctx args {:keys [host]}]
+  (name host))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
@@ -61,13 +68,19 @@
     "yaml" (yaml/generate-string value :dumper-options {:flow-style :block})
     "json" (json/encode value)))
 
+(defn resolve-updated-at
+  [ctx args {:keys [id]}]
+  (get-in @db/state [:checks id :updated-at]))
+
 (def resolvers
   {:get-checks resolve-checks
+   :get-host resolve-host
    :get-params resolve-params
    :get-status resolve-status
    :get-output resolve-output
    :get-error resolve-error
-   :get-config resolve-config})
+   :get-config resolve-config
+   :get-updated-at resolve-updated-at})
 
 (def schema
   (-> schema-data

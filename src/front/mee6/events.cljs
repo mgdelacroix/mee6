@@ -16,6 +16,6 @@
 (defrecord RetrieveChecks []
   ptk/WatchEvent
   (watch [_ state stream]
-    (->> (gql/query "{checks {id name config output error}}")
+    (->> (gql/query "{checks {id name host cron config output error updatedAt}}")
          (rx/map :checks)
          (rx/map ->ChecksRetrieved))))
