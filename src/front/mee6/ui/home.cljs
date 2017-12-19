@@ -9,8 +9,8 @@
 (mx/defc body-content-item
   [{:keys [id name cron host status updatedAt] :as check}]
   [:li.item {:class (case status
-                      :green "item-ok"
-                      :red "item-ko"
+                      "green" "item-ok"
+                      "red" "item-ko"
                       "item-disabled")}
    [:a {:href (str/istr "/detail/~{id}")}
     [:div.item-content (str/istr "~{host} :: ~{name}")]
@@ -22,8 +22,8 @@
   [checks]
   (let [total-count (count checks)
         matches-status? #(= (:status %1) %2)
-        ok-count (count (filter #(matches-status? % :green) (vals checks)))
-        ko-count (count (filter #(matches-status? % :red) (vals checks)))
+        ok-count (count (filter #(matches-status? % "green") (vals checks)))
+        ko-count (count (filter #(matches-status? % "red") (vals checks)))
         ds-count (- total-count ko-count ok-count)
         ok-pcent (quot (* ok-count 100) total-count)
         ko-pcent (quot (* ko-count 100) total-count)

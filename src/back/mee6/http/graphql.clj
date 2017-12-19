@@ -47,7 +47,9 @@
 
 (defn resolve-host
   [ctx args {:keys [host]}]
-  (name host))
+  (if (keyword? host)
+    (name host)
+    (:uri host)))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
