@@ -23,7 +23,7 @@
   ([text params]
    (let [body (js/JSON.stringify (clj->js {:query text :variables params}))
          headers {:content-type "application/json"}]
-     (->> (http/send! {:method :post :url cfg/url :body body :headers headers})
-          (rx/map parse-response)
-          (rx/do check-login)
-          (rx/map :data)))))
+         (->> (http/send! {:method :post :url cfg/url :body body :headers headers} {:credentials? true})
+              (rx/map parse-response)
+              (rx/do check-login)
+              (rx/map :data)))))

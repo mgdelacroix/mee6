@@ -42,9 +42,10 @@
         query (get-in req [:body :query])
         params (get-in req [:body :variables])
         result (gql/execute query params context)]
-    {:status 200
-     :headers {"Content-Type" "application/json"}
-     :body (json/encode result)}))
+    (merge @rsp
+           {:status 200
+            :headers {"Content-Type" "application/json"}
+            :body (json/encode result)})))
 
 (defroutes app
   (GET "/" [] (resource-response "index.html" {:root "public"}))

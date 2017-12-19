@@ -33,6 +33,11 @@
   [node]
   (.-value node))
 
+(defn get-element-value
+  "Extract the value from a dom element."
+  [id]
+  (-> (get-element id) (get-value)))
+
 (defn click
   "Click a node"
   [node]
