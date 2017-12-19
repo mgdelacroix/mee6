@@ -1,17 +1,16 @@
-(ns mee6.http.graphql
+(ns mee6.graphql
   (:require [clojure.java.io :as io]
+            [cuerdas.core :as str]
+            [cheshire.core :as json]
             [com.walmartlabs.lacinia :as gql]
             [com.walmartlabs.lacinia.util :as gql-util :refer [attach-resolvers]]
             [com.walmartlabs.lacinia.schema :as gql-schema]
-            [cuerdas.core :as str]
-            [cheshire.core :as json]
             [yaml.core :as yaml]
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.engine :as eng]
             [mee6.util.time :as dt]
-            [mee6.util.crypto :as crypto]
-            [mee6.util.template :as tmpl]))
+            [mee6.util.crypto :as crypto]))
 
 (def ^:private identity-conformer
   (gql-schema/as-conformer identity))
@@ -96,7 +95,7 @@
 
 ;; --- Mutations
 
-(defn resolve-login
+(defn- resolve-login
   [{:keys [rsp]} {:keys [username password]} value]
   (if-let [username (get-in cfg/config [:http :users (keyword username)])]
     (let [token (crypto/random-token)]
@@ -105,7 +104,7 @@
       token)
     (throw (ex-info "Invalid credentials" {:type :wrong-credentials}))))
 
-(def resolvers
+(def ^:private resolvers
   {:get-checks resolve-checks
    :get-host resolve-host
    :get-params resolve-params
@@ -116,35 +115,14 @@
    :get-updated-at resolve-updated-at
    :mutation-login resolve-login})
 
-(def schema
+(def ^:private schema
   (-> schema-data
       (gql-util/attach-resolvers resolvers)
       (gql-schema/compile)))
 
-;; --- Handlers
-
-(defn handle-graphiql
-  [req]
-  (let [encode #(-> (json/encode %) (str/replace #"\/" "\\/"))
-        ctx {:query (encode (get-in req [:params :query]))
-             :variables (encode (get-in req [:params :variables]))
-             :operation (encode (get-in req [:params :operationName]))}
-        body (tmpl/render "graphiql.html" ctx)]
-    {:status 200
-     :headers {"Content-Type" "text/html"}
-     :body body}))
-
-(defn handle-graphql
-  [req]
-  (let [rsp (atom {})
-        context {:req req :rsp rsp :authenticated (:authenticated req)}
-        query (get-in req [:body :query])
-        variables (get-in req [:body :variables])
-        result (try
-                 (gql/execute schema query variables context)
-                 (catch Exception e
-                   {:errors [(gql-util/as-error-map e)]}))]
-    (merge @rsp
-           {:status 200
-            :headers {"Content-Type" "application/json"}
-            :body result})))
+(defn execute
+  [query params context]
+  (try
+    (gql/execute schema query params context)
+    (catch Throwable e
+      {:errors [(gql-util/as-error-map e)]})))
