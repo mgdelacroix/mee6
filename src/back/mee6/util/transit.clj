@@ -1,6 +1,6 @@
-(ns mee6.transit
+(ns mee6.util.transit
   (:require [cognitect.transit :as t]
-            [mee6.time :as dt])
+            [mee6.util.time :as dt])
   (:import java.io.ByteArrayInputStream
            java.io.ByteArrayOutputStream))
 

@@ -10,28 +10,17 @@
             [mee6.modules :as mod]
             [mee6.scheduler :as schd]
             [mee6.services :as sv]
-            [mee6.time :as dt]
-            [mee6.transit :as t])
-  (:import java.security.MessageDigest
-           org.apache.commons.codec.binary.Base64))
+            [mee6.util.crypto :as crypto]
+            [mee6.util.time :as dt]))
 
 ;; --- Checks Parsing & Reconciliation
-
-(defn- digest
-  "Given the check essential data, calculates the sha256 hash of
-  its msgpack representation."
-  [data]
-  (let [data (t/encode data {:type :msgpack})
-        dgst (MessageDigest/getInstance "SHA-256")]
-    (.update dgst data 0 (count data))
-    (Base64/encodeBase64URLSafeString (.digest dgst))))
 
 (defn- assoc-identifier
   "Given a check object calculates the unique identifier and return
   a check with associated `:id` attribute."
   [check]
   (let [data (dissoc check :name :cron :notify)
-        hash (digest data)]
+        hash (crypto/digest-data data)]
     (assoc check :id hash)))
 
 (defn- resolve-host

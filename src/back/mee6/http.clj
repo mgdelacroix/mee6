@@ -8,6 +8,7 @@
             [ring.middleware.cors :refer [wrap-cors]]
             [mee6.logging :as log]
             [mee6.config :as cfg]
+            [mee6.database :as db]
             [mee6.http.graphql :as graphql]))
 
 ;; --- Router
@@ -27,6 +28,16 @@
                   (reduced))))]
     (as-> (reduce handle nil routes) $
       (or $ (not-found request)))))
+
+(defn wrap-auth
+  [handler]
+  (letfn [(valid-token? [token]
+            (not (nil? (get-in @db/state [:tokens token]))))]
+    (fn [{:keys [cookies] :as request}]
+      (let [token (get-in cookies ["auth-token" :value])]
+        (if (and token (not (nil? (get-in @db/state [:tokens token]))))
+          (handler (assoc request :authenticated true))
+          (handler (assoc request :authenticated false)))))))
 
 (defn not-found
   [request]
@@ -49,6 +60,7 @@
                       (wrap-cors :access-control-allow-origin [#".*"]
                                  :access-control-allow-methods [:get :post :options]
                                  :access-control-allow-headers [:x-requested-with :content-type :authorization])
+                      (wrap-auth)
                       (wrap-keyword-params)
                       (wrap-params)
                       (wrap-cookies)

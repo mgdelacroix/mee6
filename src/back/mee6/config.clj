@@ -27,7 +27,6 @@
 (s/def :config/modules-item (s/conformer path-conformer))
 (s/def :config/modules (s/coll-of :config/modules-item :kind vector? :min-count 1))
 
-
 (s/def :host/uri string?)
 (s/def :host/key string?)
 
@@ -50,6 +49,7 @@
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
 (s/def :config/notify (s/map-of keyword? map?))
 
+
 (s/def :email/from string?)
 (s/def :email/mode string?)
 (s/def :email/host string?)
@@ -59,9 +59,11 @@
 (s/def :email/tls boolean?)
 (s/def :email/port int?)
 
+(s/def :http/users (s/map-of keyword? string?))
+
 (s/def :http/port int?)
 (s/def :config/http
-  (s/keys :req-un [:http/port]))
+  (s/keys :req-un [:http/port :http/users]))
 
 (s/def :config/email
   (s/keys :req-un [:email/from :email/mode]
@@ -97,3 +99,4 @@
 
 (defstate config
   :start (load))
+

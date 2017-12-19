@@ -5,8 +5,8 @@
             [mount.core :refer [defstate]]
             [datoteka.core :as fs]
             [mee6.logging :as log]
-            [mee6.transit :as t]
-            [mee6.config :as cfg]))
+            [mee6.config :as cfg]
+            [mee6.util.transit :as t]))
 
 ;; --- State Ref
 

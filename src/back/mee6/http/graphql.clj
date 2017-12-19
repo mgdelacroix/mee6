@@ -6,16 +6,20 @@
             [cuerdas.core :as str]
             [cheshire.core :as json]
             [yaml.core :as yaml]
-            [mee6.template :as tmpl]
+            [mee6.config :as cfg]
+            [mee6.database :as db]
             [mee6.engine :as eng]
-            [mee6.database :as db]))
+            [mee6.util.time :as dt]
+            [mee6.util.crypto :as crypto]
+            [mee6.util.template :as tmpl]))
 
 (def ^:private identity-conformer
   (gql-schema/as-conformer identity))
 
 (def ^:private schema-data
-  {:scalars {:dynobj {:parse identity-conformer
-                      :serialize identity-conformer}}
+  {:scalars
+   {:dynobj {:parse identity-conformer
+             :serialize identity-conformer}}
    :objects
    {:check {:fields {:id {:type :ID}
                      :name {:type :String}
@@ -35,10 +39,20 @@
                               :resolve :get-config}}}}
    :queries
    {:checks {:type '(list :check)
-             :resolve :get-checks}}})
+             :resolve :get-checks}}
+
+   :mutations
+   {:login {:type :ID
+            :args {:username {:type '(non-null :String)}
+                   :password {:type '(non-null :String)}}
+            :resolve :mutation-login}}})
+
+;; --- Queries
 
 (defn resolve-checks
   [ctx args value]
+  (when-not (:authenticated ctx)
+    (throw (ex-info "Not authenticated" {:type :not-authorized})))
   eng/checks)
 
 (defn resolve-params
@@ -74,6 +88,17 @@
   [ctx args {:keys [id]}]
   (get-in @db/state [:checks id :updated-at]))
 
+;; --- Mutations
+
+(defn resolve-login
+  [{:keys [rsp]} {:keys [username password]} value]
+  (if-let [username (get-in cfg/config [:http :users (keyword username)])]
+    (let [token (crypto/random-token)]
+      (swap! db/state update :tokens assoc token (dt/now))
+      (swap! rsp assoc :cookies {:auth-token {:value token :same-site :lax}})
+      token)
+    (throw (ex-info "Invalid credentials" {:type :wrong-credentials}))))
+
 (def resolvers
   {:get-checks resolve-checks
    :get-host resolve-host
@@ -82,7 +107,8 @@
    :get-output resolve-output
    :get-error resolve-error
    :get-config resolve-config
-   :get-updated-at resolve-updated-at})
+   :get-updated-at resolve-updated-at
+   :mutation-login resolve-login})
 
 (def schema
   (-> schema-data
@@ -104,12 +130,16 @@
 
 (defn handle-graphql
   [req]
-  (let [query (get-in req [:body :query])
+  (let [rsp (atom {})
+        context {:req req :rsp rsp :authenticated (:authenticated req)}
+        query (get-in req [:body :query])
         variables (get-in req [:body :variables])
         result (try
-                 (gql/execute schema query variables nil)
+                 (gql/execute schema query variables context)
                  (catch Exception e
                    {:errors [(gql-util/as-error-map e)]}))]
-    {:status 200
-     :headers {"Content-Type" "application/json"}
-     :body result}))
+    (merge @rsp
+           {:status 200
+            :headers {"Content-Type" "application/json"}
+            :body result})))
+

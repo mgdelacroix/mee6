@@ -1,4 +1,4 @@
-(ns mee6.time
+(ns mee6.util.time
   (:refer-clojure :exclude [< >])
   (:require [cognitect.transit :as t])
   (:import java.time.Instant))
