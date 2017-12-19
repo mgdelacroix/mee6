@@ -29,7 +29,10 @@
                      :module {:type :String}
                      :params {:type :dynobj :resolve :get-params}
                      :status {:type :String :resolve :get-status}
-                     :output {:type :dynobj :resolve :get-output}
+                     :output {:type :String
+                              :args {:format {:type :String
+                                              :default-value "json"}}
+                              :resolve :get-output}
                      :error {:type :dynobj :resolve :get-error}
                      :updatedAt {:type :String
                                  :resolve :get-updated-at}
@@ -71,8 +74,11 @@
           (name)))
 
 (defn resolve-output
-  [ctx args {:keys [id]}]
-  (get-in @db/state [:checks id :local]))
+  [ctx {:keys [format]} {:keys [id]}]
+  (let [output (get-in @db/state [:checks id :local])]
+    (case format
+      "yaml" (yaml/generate-string output :dumper-options {:flow-style :block})
+      "json" (json/encode output))))
 
 (defn resolve-error
   [ctx args {:keys [id]}]
