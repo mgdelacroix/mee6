@@ -22,6 +22,7 @@
                  [hiccup "1.0.5"]
                  [environ "1.1.0"]
                  [ring "1.6.3"]
+                 [ring-cors "0.1.11"]
                  [mount "0.1.11"]]
   :source-paths ^:replace ["src/back"]}
 

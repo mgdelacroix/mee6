@@ -5,6 +5,7 @@
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.cors :refer [wrap-cors]]
             [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.http.graphql :as graphql]))
@@ -45,6 +46,9 @@
     (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)
           handler (-> router
+                      (wrap-cors :access-control-allow-origin [#".*"]
+                                 :access-control-allow-methods [:get :post :options]
+                                 :access-control-allow-headers [:x-requested-with :content-type :authorization])
                       (wrap-keyword-params)
                       (wrap-params)
                       (wrap-cookies)
