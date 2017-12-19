@@ -1,8 +1,10 @@
 (ns mee6.http
   (:require [mount.core :refer [defstate]]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.cookies :refer [wrap-cookies]]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.json :refer [wrap-json-body]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.http.graphql :as graphql]))
@@ -17,20 +19,18 @@
 
 (defn router
   [{:keys [uri] :as request}]
-  (let [response (reduce (fn [acc [re handler]]
-                           (when-let [matches (re-matches re uri)]
-                             (-> (assoc request :matches matches)
-                                 (handler)
-                                 (reduced))))
-                         nil
-                         routes)]
-    (if (nil? response)
-      (not-found request)
-      response)))
+  (letfn [(handle [_ [re handler]]
+            (when-let [matches (re-matches re uri)]
+              (-> (assoc request :matches matches)
+                  (handler)
+                  (reduced))))]
+    (as-> (reduce handle nil routes) $
+      (or $ (not-found request)))))
 
 (defn not-found
   [request]
-  {:body "not found"})
+  {:status 404
+   :body "not found"})
 
 ;; --- API
 
@@ -45,8 +45,11 @@
     (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)
           handler (-> router
+                      (wrap-keyword-params)
                       (wrap-params)
-                      (wrap-json-body {:keywords? true}))]
+                      (wrap-cookies)
+                      (wrap-json-body {:keywords? true})
+                      (wrap-json-response))]
       (jetty/run-jetty handler options))))
 
 (defn stop
