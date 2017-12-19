@@ -1,6 +1,6 @@
 (ns mee6.ui.common
   (:require [rumext.core :as mx :include-macros true]
-            [cuerdas.core :as str]
+            [cuerdas.core :as str :include-macros true]
             [mee6.util.router :as rt]))
 
 (mx/defc header
