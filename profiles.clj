@@ -50,6 +50,7 @@
                         :optimizations :none
                         :language-in  :ecmascript6
                         :language-out :ecmascript5
+                        :source-map true
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/main"
                         :asset-path "/js/main"
