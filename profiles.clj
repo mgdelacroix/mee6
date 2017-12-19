@@ -33,6 +33,7 @@
                  [sablono "0.8.0"]
 
                  [funcool/beicon "4.1.0"]
+                 [funcool/rxhttp "1.0.0-SNAPSHOT"]
                  [funcool/bide "1.6.0"]
                  [funcool/cuerdas "2.0.4"]
                  [funcool/lentes "1.2.0"]

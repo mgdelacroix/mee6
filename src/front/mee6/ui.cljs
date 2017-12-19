@@ -2,11 +2,8 @@
   (:require [rumext.core :as mx :include-macros true]
             [mee6.util.dom :as dom]
             [mee6.store :as st]
-            [mee6.util.router :as rt]))
-
-(mx/defc home
-  []
-  [:p "Hello home"])
+            [mee6.util.router :as rt]
+            [mee6.ui.home :as home]))
 
 (mx/defc detail
   []
@@ -17,9 +14,9 @@
   []
   (let [{:keys [route] :as state} (mx/react st/state)]
     (case (:id route)
-      :home (home)
+      :home (home/main state)
       :detail (detail)
-      (home))))
+      (home/main))))
 
 (def ^:private routes
   [["/" :home]
