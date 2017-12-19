@@ -3,20 +3,25 @@
             [mee6.util.dom :as dom]
             [mee6.store :as st]
             [mee6.util.router :as rt]
-            [mee6.ui.home :as home]))
-
-(mx/defc detail
-  []
-  [:p "Hello detail"])
+            [mee6.ui.common :as common]
+            [mee6.ui.home :as home]
+            [mee6.ui.detail :as detail]))
 
 (mx/defc app
   {:mixins [mx/reactive]}
   []
-  (let [{:keys [route] :as state} (mx/react st/state)]
-    (case (:id route)
-      :home (home/main state)
-      :detail (detail)
-      (home/main))))
+  (let [{:keys [route checks] :as state} (mx/react st/state)]
+    [:div
+     (common/header)
+     [:div#main-content.content
+      [:section#items
+       (common/body-content-summary checks)
+       (case (:id route)
+         :home (home/main state)
+         :detail (let [id (get-in route [:params :id])
+                       check (get checks id)]
+                   (detail/check check))
+         (home/main))]]]))
 
 (def ^:private routes
   [["/" :home]
