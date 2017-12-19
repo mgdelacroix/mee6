@@ -62,8 +62,10 @@
 (s/def :http/users (s/map-of keyword? string?))
 
 (s/def :http/port int?)
+(s/def :http/graphiql boolean?)
 (s/def :config/http
-  (s/keys :req-un [:http/port :http/users]))
+  (s/keys :req-un [:http/port :http/users]
+          :opt-un [:http/graphiql]))
 
 (s/def :config/email
   (s/keys :req-un [:email/from :email/mode]
@@ -99,4 +101,3 @@
 
 (defstate config
   :start (load))
-

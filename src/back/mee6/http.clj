@@ -16,6 +16,9 @@
 
 ;; --- Router
 
+(def not-found
+  (constantly {:status 404 :body "not found"}))
+
 (defn handle-graphiql
   [req]
   (let [encode #(-> (json/encode %) (str/replace #"\/" "\\/"))
@@ -23,9 +26,11 @@
                 :variables (encode (get-in req [:params :variables] ""))
                 :operation (encode (get-in req [:params :operationName] ""))}
         body (tmpl/render "graphiql.html" params)]
-    {:status 200
-     :headers {"Content-Type" "text/html"}
-     :body body}))
+    (if (get-in cfg/config [:http :graphiql])
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body body}
+      (not-found req))))
 
 (defn handle-graphql
   [req]
@@ -37,9 +42,6 @@
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body (json/encode result)}))
-
-(def not-found
-  (constantly {:status 404 :body "not found"}))
 
 (def routes
   [[#"^/graphql$" #'handle-graphql]
