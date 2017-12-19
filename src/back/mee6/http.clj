@@ -3,12 +3,15 @@
             [cheshire.core :as json]
             [mount.core :refer [defstate]]
             [mee6.util.template :as tmpl]
+            [compojure.core :refer :all]
+            [compojure.route :as route]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.cors :refer [wrap-cors]]
+            [ring.util.response :refer [resource-response]]
             [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.database :as db]
@@ -43,19 +46,12 @@
      :headers {"Content-Type" "application/json"}
      :body (json/encode result)}))
 
-(def routes
-  [[#"^/graphql$" #'handle-graphql]
-   [#"^/graphiql$" #'handle-graphiql]])
-
-(defn router
-  [{:keys [uri] :as request}]
-  (letfn [(handle [_ [re handler]]
-            (when-let [matches (re-matches re uri)]
-              (-> (assoc request :matches matches)
-                  (handler)
-                  (reduced))))]
-    (as-> (reduce handle nil routes) $
-      (or $ (not-found request)))))
+(defroutes app
+  (GET "/" [] (resource-response "index.html" {:root "public"}))
+  (POST "/graphql" request (handle-graphql request))
+  (GET  "/graphiql" request (handle-graphiql request))
+  (route/resources "/")
+  (route/not-found "<h1>Page not found</h1>"))
 
 (defn wrap-auth
   [handler]
@@ -88,7 +84,7 @@
   (when http
     (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)]
-      (-> router
+      (-> app
           (wrap-errors)
           (wrap-cors :access-control-allow-origin [#".*"]
                      :access-control-allow-credentials "true"

@@ -12,3 +12,4 @@ pom.xml.asc
 /state.db
 figwheel_server.log
 resources/public
+*-init.clj

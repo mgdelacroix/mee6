@@ -7,7 +7,7 @@ database:
 
 # The logging configuration.
 
-log-level: debug
+log-level: info
 
 # A directory list when to search additional modules (optional)
 

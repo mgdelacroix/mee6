@@ -17,6 +17,7 @@
                  [funcool/datoteka "1.0.0"]
                  [ring/ring-json "0.4.0" :exclusions [ring/ring-core]]
 
+                 [compojure "1.6.0" :exclusions [ring/ring-core]]
                  [commons-codec "1.11"]
                  [cheshire "5.8.0"]
                  [hiccup "1.0.5"]
@@ -38,19 +39,38 @@
                  [funcool/cuerdas "2.0.4"]
                  [funcool/lentes "1.2.0"]
                  [funcool/potok "2.3.0"]]
-  :plugins [[lein-figwheel "0.5.14"]]
+  :plugins [[lein-figwheel "0.5.14"]
+            [lein-cljsbuild "1.1.7"]]
   :source-paths ^:replace ["src/front"]
   :cljsbuild
   {:builds [{:id "dev"
              :source-paths ["src/front"]
              :figwheel {:on-jsload "mee6.main/init"}
              :compiler {:main "mee6.main"
+                        :closure-defines {"mee6.config.url" "http://localhost:3001/graphql"}
                         :cache-analysis false
                         :parallel-build false
                         :optimizations :none
                         :language-in  :ecmascript6
                         :language-out :ecmascript5
                         :source-map true
+                        :output-to "resources/public/js/main.js"
+                        :output-dir "resources/public/js/main-dev"
+                        :asset-path "/js/main"
+                        :verbose true}}
+            {:id "prod"
+             :source-paths ["src/front"]
+             :figwheel false
+             :compiler {:main "mee6.main"
+                        :closure-defines {"mee6.config.url" "graphql"}
+                        :cache-analysis false
+                        :parallel-build false
+                        :pretty-print false
+                        :pseudo-names false
+                        :optimizations :simple
+                        :language-in  :ecmascript6
+                        :language-out :ecmascript5
+                        :source-map "resources/public/js/main.js.map"
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/main"
                         :asset-path "/js/main"
