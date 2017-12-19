@@ -47,13 +47,12 @@
 (mx/defc main
   {:will-mount #(st/emit! (ev/->RetrieveChecks))}
   [state]
-  (if state
-    (let [checks (:checks state)]
-      [:div#main-content.content
-       [:section#items
-        (body-content-summary (:checks state))
-        [:h2 "INSTANCES"]
-        [:ul.list.items
-         (for [id (keys checks)]
-           (body-content-item (get checks id)))]]])
-    [:p "Loading..."]))
+  (let [checks (:checks state)]
+    [:div#main-content.content
+     [:section#items
+      (body-content-summary (:checks state))
+      [:h2 "INSTANCES"]
+      [:ul.list.items
+       (for [id (keys checks)]
+         (-> (body-content-item (get checks id))
+             (mx/with-key id)))]]]))
