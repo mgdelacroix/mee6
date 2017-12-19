@@ -53,9 +53,9 @@
   for such handler and parameters."
   ([id]
    (if +router+
-     (r/resolve +router+ id)
+     (str "/#" (r/resolve +router+ id))
      ""))
   ([id params]
    (if +router+
-     (r/resolve +router+ id params)
+     (str "/#" (r/resolve +router+ id params))
      "")))
