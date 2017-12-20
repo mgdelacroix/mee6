@@ -176,6 +176,14 @@ select {
     border-left-color: #859cad;
 }
 
+.detail-header .item-content {
+    font-size: 1.2rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* --- Home Page --- */
 
 .home {
