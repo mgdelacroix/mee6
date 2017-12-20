@@ -98,10 +98,10 @@
 (defn- reconfigure-logging!
   [{:keys [log-level]}]
   (when log-level
-    (log/configure! {:log-level (keyword log-level)})))
+    (log/configure! {:level (keyword log-level)})))
 
 (def ^:private default-logging-config
-  {:log-level :info
+  {:level :info
    :timestamp-opts {:pattern "yyyy-MM-dd HH:mm:ss"
                     :locale :jvm-default
                     :timezone :utc}})
