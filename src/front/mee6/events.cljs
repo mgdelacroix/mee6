@@ -27,10 +27,19 @@
       (->> (gql/query text params)
            (rx/map ->LoginRetrieved)))))
 
+(defrecord LogoutRetrieved []
+  ptk/UpdateEvent
+  (update [_ state]
+    (dissoc state :token))
+  ptk/WatchEvent
+  (watch [_ state stream]
+    (rx/of (rt/navigate :login))))
+
 (defrecord RetrieveLogout []
   ptk/WatchEvent
   (watch [_ state stream]
-    (gql/query "mutation Logout {logout}")))
+    (->> (gql/query "mutation Logout {logout}")
+         (rx/map ->LogoutRetrieved))))
 
 (defrecord ChecksRetrieved [checks]
   ptk/UpdateEvent

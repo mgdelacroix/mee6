@@ -47,7 +47,9 @@
    {:login {:type :ID
             :args {:username {:type '(non-null :String)}
                    :password {:type '(non-null :String)}}
-            :resolve :mutation-login}}})
+            :resolve :mutation-login}
+    :logout {:type :ID
+             :resolve :mutation-logout}}})
 
 ;; --- Queries
 
@@ -104,6 +106,11 @@
       token)
     (throw (ex-info "Invalid credentials" {:type :wrong-credentials}))))
 
+(defn- resolve-logout
+  [{:keys [rsp] :as ctx} args value]
+  (swap! rsp assoc :cookies {:auth-token {:value "" :same-site :lax :max-age -1}})
+  true)
+
 (def ^:private resolvers
   {:get-checks resolve-checks
    :get-host resolve-host
@@ -113,7 +120,8 @@
    :get-error resolve-error
    :get-config resolve-config
    :get-updated-at resolve-updated-at
-   :mutation-login resolve-login})
+   :mutation-login resolve-login
+   :mutation-logout resolve-logout})
 
 (def ^:private schema
   (-> schema-data
