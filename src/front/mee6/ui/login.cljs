@@ -18,13 +18,12 @@
   []
   [:div#login
    [:h2 "LOGIN"]
-   [:input#username {:type "text"
-                     :name "username"
-                     :placeholder "username"}]
-   [:input#password {:type "password"
-                     :name "password"
-                     :placeholder "password"}]
-   [:input {:type "button"
-            :name "submit"
-            :value "Login"
-            :on-click submit-login}]])
+   [:form {:on-submit submit-login}
+    [:input#username {:type "text"
+                      :name "username"
+                      :placeholder "username"}]
+    [:input#password {:type "password"
+                      :name "password"
+                      :placeholder "password"}]
+    [:button {:type "submit"
+              :name "button"} "Login"]]])
