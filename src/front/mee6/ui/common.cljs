@@ -17,7 +17,7 @@
    [:h1.logo-name
     [:a {:href (rt/route-for :home)} "Mee6"]]
    [:p.tagline "I'm Mr. Meeseeks! Look at me!"]
-   [:div#logout
+   [:div.logout-header
     [:a {:on-click logout-click} "Logout"]]])
 
 (mx/defc body-content-item

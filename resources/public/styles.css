@@ -77,9 +77,10 @@ h3 {
 .tagline {
     margin: 0;
 }
-#logout {
-    right: 16px;
-    position: absolute;
+.logout-header {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row-reverse;
     cursor: pointer;
 }
 select {
