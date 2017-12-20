@@ -24,6 +24,7 @@
                      :name {:type :String}
                      :cron {:type :String}
                      :host {:type :String :resolve :resolve-host}
+                     :tags {:type '(list String) :resolve :resolve-tags}
                      :module {:type :String}
                      :params {:type :dynobj :resolve :resolve-params}
                      :status {:type :String :resolve :resolve-status}
@@ -67,6 +68,10 @@
   (if (keyword? host)
     (name host)
     (name (:id host))))
+
+(defn resolve-tags
+  [ctx args {:keys [tags host]}]
+  (map name (mapcat set [[(:id host)] tags])))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
@@ -120,6 +125,7 @@
    :resolve-error resolve-error
    :resolve-config resolve-config
    :resolve-updated-at resolve-updated-at
+   :resolve-tags resolve-tags
    :mutation-login resolve-login
    :mutation-logout resolve-logout})
 

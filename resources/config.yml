@@ -29,6 +29,8 @@ checks:
     hosts:
       - testhost
     url: https://httpbin.org/status/200
+    tags:
+      - foo
     module: http-keepalive
     http-method: "head"
     expected-statuses:
@@ -39,6 +41,8 @@ checks:
     hosts:
       - testhost
     cron: "*/10 * * * * ?"
+    tags:
+      - bar
     module: user-script
     file: /tmp/myscript
 

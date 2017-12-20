@@ -42,12 +42,14 @@
 (s/def :check/hosts (s/coll-of string? :kind vector? :min-count 1))
 (s/def :check/cron string?)
 (s/def :check/module string?)
+(s/def :check/tags (s/coll-of string? :kind vector? :min-count 1))
 
 (s/def :check/notify (s/coll-of string? :kind vector? :min-count 0))
 (s/def :config/check (s/keys :req-un [:check/hosts
                                       :check/cron
                                       :check/module]
-                             :opt-un [:check/notify]))
+                             :opt-un [:check/notify
+                                      :check/tags]))
 
 (s/def :config/checks (s/coll-of :config/check :kind vector? :min-count 1))
 (s/def :config/notify (s/map-of keyword? map?))
