@@ -45,6 +45,7 @@
   :plugins [[lein-figwheel "0.5.14"]
             [lein-cljsbuild "1.1.7"]]
   :source-paths ^:replace ["src/front"]
+  :figwheel {:css-dirs ["resources/public"]}
   :cljsbuild
   {:builds [{:id "dev"
              :source-paths ["src/front"]
@@ -71,6 +72,8 @@
                         :pretty-print false
                         :pseudo-names false
                         :optimizations :simple
+                        :fn-invoke-direct false
+                        :static-fns true
                         :language-in  :ecmascript5
                         :language-out :ecmascript5
                         :source-map "resources/public/js/main.js.map"

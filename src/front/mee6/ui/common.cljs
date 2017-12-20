@@ -20,20 +20,7 @@
      [:div.logout-header
       [:a {:on-click on-logout} "Logout"]]]))
 
-(mx/defc body-content-item
-  {:mixins [mx/static]}
-  [{:keys [id name cron host status updatedAt] :as check}]
-  [:li.item {:class (case status
-                      "green" "item-ok"
-                      "red" "item-ko"
-                      "item-disabled")}
-   [:a {:href (rt/route-for :detail {:id id})}
-    [:div.item-content (str/istr "~{host} :: ~{name}")]
-    [:ul.meta
-     [:li [:strong "cron: "] cron]
-     [:li [:strong "last run: "] (str updatedAt)]]]])
-
-(mx/defc body-content-summary
+(mx/defc summary
   {:mixins [mx/static]}
   [checks]
   (let [total-count (count checks)
@@ -50,7 +37,7 @@
       [:div.bar.bar-ko {:style {:width (str/istr "~{ko-pcent}%")}}]
       [:div.bar.bar-disabled {:style {:width (str/istr "~{ds-pcent}%")}}]]
      [:ul.data
-      [:li.data-ok
+      [:li.data-ok.is-disabled
        [:span.value ok-count]
        [:span.label "Working"]]
       [:li.data-ko
