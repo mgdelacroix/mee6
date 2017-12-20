@@ -1,5 +1,7 @@
 (ns mee6.ui.home
   (:require [rumext.core :as mx :include-macros true]
+            [cuerdas.core :as str :include-macros true]
+            [mee6.util.router :as rt]
             [mee6.ui.common :as common]))
 
 (mx/defc check-item
