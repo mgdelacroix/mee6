@@ -24,24 +24,24 @@
                      :name {:type :String}
                      :cron {:type :String}
                      :host {:type :String
-                            :resolve :get-host}
+                            :resolve :resolve-host}
                      :module {:type :String}
-                     :params {:type :dynobj :resolve :get-params}
-                     :status {:type :String :resolve :get-status}
+                     :params {:type :dynobj :resolve :resolve-params}
+                     :status {:type :String :resolve :resolve-status}
                      :output {:type :String
                               :args {:format {:type :String
                                               :default-value "json"}}
-                              :resolve :get-output}
-                     :error {:type :dynobj :resolve :get-error}
+                              :resolve :resolve-output}
+                     :error {:type :dynobj :resolve :resolve-error}
                      :updatedAt {:type :String
-                                 :resolve :get-updated-at}
+                                 :resolve :resolve-updated-at}
                      :config {:type :String
                               :args {:format {:type :String
                                               :default-value "yaml"}}
-                              :resolve :get-config}}}}
+                              :resolve :resolve-config}}}}
    :queries
    {:checks {:type '(list :check)
-             :resolve :get-checks}}
+             :resolve :resolve-checks}}
 
    :mutations
    {:login {:type :ID
@@ -99,12 +99,13 @@
 
 (defn- resolve-login
   [{:keys [rsp]} {:keys [username password]} value]
-  (if-let [username (get-in cfg/config [:http :users (keyword username)])]
+  (let [pwhash (get-in cfg/config [:http :users (keyword username)])]
+    (when-not (crypto/verify-password pwhash password)
+      (throw (ex-info "Invalid credentials" {:type :wrong-credentials})))
     (let [token (crypto/random-token)]
       (swap! db/state update :tokens assoc token (dt/now))
       (swap! rsp assoc :cookies {:auth-token {:value token :same-site :lax}})
-      token)
-    (throw (ex-info "Invalid credentials" {:type :wrong-credentials}))))
+      token)))
 
 (defn- resolve-logout
   [{:keys [rsp] :as ctx} args value]
@@ -112,14 +113,14 @@
   true)
 
 (def ^:private resolvers
-  {:get-checks resolve-checks
-   :get-host resolve-host
-   :get-params resolve-params
-   :get-status resolve-status
-   :get-output resolve-output
-   :get-error resolve-error
-   :get-config resolve-config
-   :get-updated-at resolve-updated-at
+  {:resolve-checks resolve-checks
+   :resolve-host resolve-host
+   :resolve-params resolve-params
+   :resolve-status resolve-status
+   :resolve-output resolve-output
+   :resolve-error resolve-error
+   :resolve-config resolve-config
+   :resolve-updated-at resolve-updated-at
    :mutation-login resolve-login
    :mutation-logout resolve-logout})
 
