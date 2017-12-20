@@ -2,18 +2,16 @@
   (:require [clojure.java.io :as io]
             [cuerdas.core :as str]
             [cheshire.core :as json]
-            [com.walmartlabs.lacinia :as gql]
-            [com.walmartlabs.lacinia.util :as gql-util :refer [attach-resolvers]]
-            [com.walmartlabs.lacinia.schema :as gql-schema]
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.engine :as eng]
+            [mee6.util.graphql :as gql]
             [mee6.util.yaml :as yaml]
             [mee6.util.time :as dt]
             [mee6.util.crypto :as crypto]))
 
 (def ^:private identity-conformer
-  (gql-schema/as-conformer identity))
+  (gql/conformer identity))
 
 (def ^:private schema-data
   {:scalars
@@ -130,13 +128,11 @@
    :mutation-logout resolve-logout})
 
 (def ^:private schema
-  (-> schema-data
-      (gql-util/attach-resolvers resolvers)
-      (gql-schema/compile)))
+  (gql/compile schema-data resolvers))
 
 (defn execute
   [query params context]
   (try
     (gql/execute schema query params context)
     (catch Throwable e
-      {:errors [(gql-util/as-error-map e)]})))
+      (gql/as-error-map e))))
