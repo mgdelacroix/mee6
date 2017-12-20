@@ -23,8 +23,7 @@
    {:check {:fields {:id {:type :ID}
                      :name {:type :String}
                      :cron {:type :String}
-                     :host {:type :String
-                            :resolve :resolve-host}
+                     :host {:type :String :resolve :resolve-host}
                      :module {:type :String}
                      :params {:type :dynobj :resolve :resolve-params}
                      :status {:type :String :resolve :resolve-status}
@@ -67,7 +66,7 @@
   [ctx args {:keys [host]}]
   (if (keyword? host)
     (name host)
-    (:uri host)))
+    (name (:id host))))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
