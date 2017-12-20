@@ -208,8 +208,13 @@ select {
         flex-direction: column;
     }
 
+    .home-sidebar {
+        max-width: 100%;
+    }
+
     .home-sidebar .sidebar-items {
         flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .home-sidebar .sidebar-item {

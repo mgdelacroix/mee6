@@ -27,6 +27,13 @@
       [:div.sidebar-items
        [:div.sidebar-item "production"]
        [:div.sidebar-item "localhost"]
+       [:div.sidebar-item "production"]
+       [:div.sidebar-item "localhost"]
+       [:div.sidebar-item "production"]
+       [:div.sidebar-item "production"]
+       [:div.sidebar-item "localhost"]
+       [:div.sidebar-item "production"]
+       [:div.sidebar-item "localhost"]
        [:div.sidebar-item "testing"]]]
      [:section.home-content
       [:h2 "INSTANCES"]
