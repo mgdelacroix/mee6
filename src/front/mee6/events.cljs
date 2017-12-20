@@ -68,7 +68,7 @@
   "query RetrieveCheccks($outputFormat: String!) {
      checks {
        id, name, host, cron, status,
-       config, error, updatedAt
+       tags, config, error, updatedAt
        output(format: $outputFormat)
      }
    }")
@@ -79,3 +79,10 @@
     (->> (gql/query +checks-query+ {:outputFormat "yaml"})
          (rx/map :checks)
          (rx/map ->ChecksRetrieved))))
+
+(defrecord UpdateSelectedTag [tag]
+  ptk/UpdateEvent
+  (update [_ {:keys [selected-tag] :as state}]
+    (if (= tag selected-tag)
+      (dissoc state :selected-tag)
+      (assoc state :selected-tag tag))))

@@ -160,8 +160,12 @@ select {
 .home-sidebar .sidebar-item {
     padding: 0.5em;
     background-color: #ddf3d5;
-    border-left: 10px solid #9dce0a;
     margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.sidebar-item.selected {
+    border-left: 10px solid #9dce0a;
 }
 
 .home-content {
