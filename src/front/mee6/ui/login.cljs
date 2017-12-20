@@ -13,14 +13,15 @@
 
 (mx/defc main
   []
-  [:div#login
-   [:h2 "LOGIN"]
-   [:form {:on-submit submit-login}
-    [:input#username {:type "text"
-                      :name "username"
-                      :placeholder "username"}]
-    [:input#password {:type "password"
-                      :name "password"
-                      :placeholder "password"}]
-    [:button {:type "submit"
-              :name "button"} "Login"]]])
+  [:div.login-wrapper
+   [:div.login
+    [:h2 "LOGIN"]
+    [:form.login-form {:on-submit submit-login}
+     [:input#username {:type "text"
+                       :name "username"
+                       :placeholder "username"}]
+     [:input#password {:type "password"
+                       :name "password"
+                       :placeholder "password"}]
+     [:button {:type "submit"
+               :name "button"} "Login"]]]])
