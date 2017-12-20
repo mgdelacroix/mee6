@@ -1,5 +1,5 @@
 (ns mee6.graphql
-  (:require [rxhttp.core :as http]
+  (:require [rxhttp.browser :as http]
             [beicon.core :as rx]
             [mee6.config :as cfg]
             [mee6.store :as st]

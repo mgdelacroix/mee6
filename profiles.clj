@@ -54,7 +54,7 @@
                         :cache-analysis false
                         :parallel-build false
                         :optimizations :none
-                        :language-in  :ecmascript6
+                        :language-in  :ecmascript5
                         :language-out :ecmascript5
                         :source-map true
                         :output-to "resources/public/js/main.js"
@@ -71,7 +71,7 @@
                         :pretty-print false
                         :pseudo-names false
                         :optimizations :simple
-                        :language-in  :ecmascript6
+                        :language-in  :ecmascript5
                         :language-out :ecmascript5
                         :source-map "resources/public/js/main.js.map"
                         :output-to "resources/public/js/main.js"

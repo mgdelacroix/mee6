@@ -9,7 +9,7 @@
             [mee6.ui.home :as home]
             [mee6.ui.login :as login]))
 
-(def +refresh-time-milis+ 1000)
+(def +refresh-time-milis+ 5000)
 
 (defn content-will-mount
   [own]
