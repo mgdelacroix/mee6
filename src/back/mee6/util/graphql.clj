@@ -26,5 +26,6 @@
    (gql/execute schema query params context)))
 
 (defn as-error-map
+  "Convert an exception in a graphql-like error map."
   [err]
   {:errors [(gql-util/as-error-map err)]})
