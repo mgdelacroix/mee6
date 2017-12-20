@@ -12,10 +12,10 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.cors :refer [wrap-cors]]
             [ring.util.response :refer [resource-response]]
-            [mee6.logging :as log]
             [mee6.config :as cfg]
             [mee6.database :as db]
-            [mee6.graphql :as gql]))
+            [mee6.graphql :as gql]
+            [mee6.util.logging :as log]))
 
 ;; --- Router
 

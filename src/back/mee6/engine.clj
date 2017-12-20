@@ -6,10 +6,10 @@
             [mount.core :as mount :refer [defstate]]
             [mee6.config :as cfg]
             [mee6.database :refer [state]]
-            [mee6.logging :as log]
             [mee6.modules :as mod]
             [mee6.scheduler :as schd]
             [mee6.services :as sv]
+            [mee6.util.logging :as log]
             [mee6.util.crypto :as crypto]
             [mee6.util.time :as dt]))
 

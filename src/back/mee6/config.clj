@@ -6,8 +6,11 @@
             [clojure.pprint :refer [pprint]]
             [datoteka.core :as fs]
             [environ.core :refer [env]]
-            [yaml.core :as yaml]
-            [mee6.exceptions :as exc]))
+            [mee6.exceptions :as exc]
+            [mee6.util.logging :as log]
+            [mee6.util.yaml :as yaml]))
+
+(def ^:dynamic *config-path* "resources/config.yml")
 
 ;; --- Configuration file spec.
 
@@ -92,12 +95,37 @@
                  :explain (s/explain-str ::config data)))
     config))
 
+(defn- reconfigure-logging!
+  [{:keys [log-level]}]
+  (when log-level
+    (log/configure! {:log-level (keyword log-level)})))
+
+(def ^:private default-logging-config
+  {:log-level :info
+   :timestamp-opts {:pattern "yyyy-MM-dd HH:mm:ss"
+                    :locale :jvm-default
+                    :timezone :utc}})
+
+
 (defn load
   []
-  (-> (get env :mee6-config "resources/config.yml")
-      (yaml/from-file)
-      (keywordize-keys)
-      (validate)))
+  ;; Set initial logging configuration
+  (log/configure! default-logging-config)
+
+  ;; Load config file
+  (let [path (get env :mee6-config *config-path*)
+        cfg  (-> (yaml/decode-from-file path)
+                 (keywordize-keys)
+                 (validate))]
+
+    (log/inf "Configuration loaded from path:" path)
+    ;; (when (nil? cfg)
+    ;;   (log/err "Configuration is empty or file does not exists!"))
+
+    ;; Reconfigure logging with loaded configuration
+    (reconfigure-logging! cfg)
+
+    cfg))
 
 (defstate config
   :start (load))

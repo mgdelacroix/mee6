@@ -24,7 +24,8 @@
                  [environ "1.1.0"]
                  [ring "1.6.3"]
                  [ring-cors "0.1.11"]
-                 [mount "0.1.11"]]
+                 [mount "0.1.11"]
+                 [docopt "0.6.1"]]
   :source-paths ^:replace ["src/back"]}
 
  :front
@@ -76,8 +77,7 @@
                         :asset-path "/js/main"
                         :verbose true}}]}
   :clean-targets ^{:protect false} ["resources/public/js"]}
-
  :dev {:main ^:skip-aot mee6.repl
        :plugins [[lein-ancient "0.6.15"]]}
- :prod {:main ^:skip-aot mee6.core}
- :uberjar {:main mee6.core :aot :all}}
+ :prod [:back {:main ^:skip-aot mee6.core}]
+ :uberjar [:back {:main mee6.core :aot :all}]}

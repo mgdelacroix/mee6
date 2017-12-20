@@ -5,10 +5,10 @@
             [com.walmartlabs.lacinia :as gql]
             [com.walmartlabs.lacinia.util :as gql-util :refer [attach-resolvers]]
             [com.walmartlabs.lacinia.schema :as gql-schema]
-            [yaml.core :as yaml]
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.engine :as eng]
+            [mee6.util.yaml :as yaml]
             [mee6.util.time :as dt]
             [mee6.util.crypto :as crypto]))
 
@@ -78,7 +78,7 @@
   [ctx {:keys [format]} {:keys [id]}]
   (let [output (get-in @db/state [:checks id :local])]
     (case format
-      "yaml" (yaml/generate-string output :dumper-options {:flow-style :block})
+      "yaml" (yaml/encode output)
       "json" (json/encode output))))
 
 (defn resolve-error
@@ -88,7 +88,7 @@
 (defn resolve-config
   [ctx {:keys [format]} value]
   (case format
-    "yaml" (yaml/generate-string value :dumper-options {:flow-style :block})
+    "yaml" (yaml/encode value)
     "json" (json/encode value)))
 
 (defn resolve-updated-at

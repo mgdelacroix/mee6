@@ -3,7 +3,7 @@
             [cuerdas.core :as str]
             [hiccup.core :refer [html]]
             [mee6.config :as cfg]
-            [mee6.logging :as log]
+            [mee6.util.logging :as log]
             [mee6.services :as sv]
             [mount.core :refer [defstate]]
             [postal.core :as postal]
