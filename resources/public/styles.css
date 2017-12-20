@@ -77,6 +77,11 @@ h3 {
 .tagline {
     margin: 0;
 }
+#logout {
+    right: 16px;
+    position: absolute;
+    cursor: pointer;
+}
 select {
     border: 1px solid #fff;
     background: white;
