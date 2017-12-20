@@ -33,6 +33,10 @@
   [node]
   (.-value node))
 
+(defn get-name
+  [node]
+  (.-name node))
+
 (defn get-element-value
   "Extract the value from a dom element."
   [id]

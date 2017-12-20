@@ -8,7 +8,7 @@
 (defn logout-click
   [e]
   (.preventDefault e)
-  (st/emit! (ev/->RetrieveLogout)))
+  (st/emit! (ev/->Logout)))
 
 (mx/defc header
   []

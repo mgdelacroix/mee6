@@ -2,8 +2,10 @@
   (:require [beicon.core :as rx]
             [potok.core :as ptk]))
 
+(def ^:dynamic *on-error* identity)
+
 (defonce state (atom {}))
-(defonce store (ptk/store))
+(defonce store (ptk/store {:on-error #(*on-error* %)}))
 
 (defn emit!
   ([event]

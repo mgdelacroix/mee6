@@ -5,41 +5,59 @@
             [mee6.util.router :as rt]
             [mee6.store :as st]))
 
+;; --- Helpers
+
 (defn- index-by
   [coll getter]
   (reduce #(assoc %1 (getter %2) %2) {} coll))
 
-(defrecord LoginRetrieved [data]
+;; --- Auth Events
+
+(defrecord LoggedIn [data]
   ptk/UpdateEvent
   (update [_ state]
     (assoc state :token (:login data)))
+
   ptk/WatchEvent
   (watch [_ state stream]
     (rx/of (rt/navigate :home))))
 
-(defrecord RetrieveLogin [username password]
+(def ^:private +login-query+
+  "mutation Login($username: String!, $password: String!) {
+     login(username: $username, password: $password)
+   }")
+
+
+(defrecord Login [params on-error]
   ptk/WatchEvent
   (watch [_ state stream]
-    (let [text (str "mutation Login($username: String!, $password: String!) {
-                       login(username: $username, password: $password)
-                     }")
-          params {:username username :password password}]
-      (->> (gql/query text params)
-           (rx/map ->LoginRetrieved)))))
+    (println "Login$watch" params on-error)
+    (letfn [(handle-error [{:keys [type] :as error}]
+              (if (= type "wrong-credentials")
+                (do
+                  (on-error error)
+                  (rx/empty))
+                (rx/throw error)))]
+      (->> (gql/query +login-query+ params)
+           (rx/catch handle-error)
+           (rx/map ->LoggedIn)))))
 
-(defrecord LogoutRetrieved []
+(defrecord LoggedOut []
   ptk/UpdateEvent
   (update [_ state]
     (dissoc state :token))
+
   ptk/WatchEvent
   (watch [_ state stream]
     (rx/of (rt/navigate :login))))
 
-(defrecord RetrieveLogout []
+(defrecord Logout []
   ptk/WatchEvent
   (watch [_ state stream]
     (->> (gql/query "mutation Logout {logout}")
-         (rx/map ->LogoutRetrieved))))
+         (rx/map ->LoggedOut))))
+
+;; --- Checks Events
 
 (defrecord ChecksRetrieved [checks]
   ptk/UpdateEvent
