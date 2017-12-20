@@ -9,13 +9,23 @@
             [mee6.ui.home :as home]
             [mee6.ui.login :as login]))
 
+(def +refresh-time-milis+ 1000)
+
 (defn content-will-mount
   [own]
-  (st/emit! (ev/->RetrieveChecks))
-  own)
+  (letfn [(retrieve [] (st/emit! (ev/->RetrieveChecks)))]
+    (retrieve)
+    (let [interval (js/setInterval retrieve +refresh-time-milis+)]
+      (assoc own :retrieve-interval interval))))
+
+(defn content-will-unmount
+  [{:keys [retrieve-interval] :as own}]
+  (js/clearInterval retrieve-interval)
+  (dissoc own :retrieve-interval))
 
 (mx/defc content
-  {:will-mount content-will-mount}
+  {:will-mount content-will-mount
+   :will-unmount content-will-unmount}
   [{:keys [route checks] :as state}]
   [:div#main-content.content
    [:section#items
