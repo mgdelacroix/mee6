@@ -37,7 +37,7 @@
       [:div.bar.bar-ko {:style {:width (str/istr "~{ko-pcent}%")}}]
       [:div.bar.bar-disabled {:style {:width (str/istr "~{ds-pcent}%")}}]]
      [:ul.data
-      [:li.data-ok.is-disabled
+      [:li.data-ok
        [:span.value ok-count]
        [:span.label "Working"]]
       [:li.data-ko
