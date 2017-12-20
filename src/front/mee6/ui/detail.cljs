@@ -3,7 +3,8 @@
             [mee6.ui.common :as common]))
 
 (mx/defc check
-  [{:keys [name host cron status config output error updatedAt] :as check}]
+  {:mixins [mx/static]}
+  [{:keys [config output error] :as check}]
   [:div
    [:ul.list.items
     (common/body-content-item check)]

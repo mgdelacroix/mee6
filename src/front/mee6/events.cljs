@@ -27,7 +27,6 @@
      login(username: $username, password: $password)
    }")
 
-
 (defrecord Login [params on-error]
   ptk/WatchEvent
   (watch [_ state stream]
@@ -65,9 +64,18 @@
     (->> (index-by checks :id)
          (assoc state :checks))))
 
+(def ^:private +checks-query+
+  "query RetrieveCheccks($outputFormat: String!) {
+     checks {
+       id, name, host, cron, status,
+       config, error, updatedAt
+       output(format: $outputFormat)
+     }
+   }")
+
 (defrecord RetrieveChecks []
   ptk/WatchEvent
   (watch [_ state stream]
-    (->> (gql/query "{checks {id name host cron status config output(format: \"yaml\") error updatedAt}}")
+    (->> (gql/query +checks-query+ {:outputFormat "yaml"})
          (rx/map :checks)
          (rx/map ->ChecksRetrieved))))

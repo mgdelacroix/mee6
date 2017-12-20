@@ -2,25 +2,26 @@
   (:require [rumext.core :as mx :include-macros true]
             [cuerdas.core :as str :include-macros true]
             [mee6.util.router :as rt]
+            [mee6.util.dom :as dom]
             [mee6.store :as st]
             [mee6.events :as ev]))
 
-(defn logout-click
-  [e]
-  (.preventDefault e)
-  (st/emit! (ev/->Logout)))
-
 (mx/defc header
+  {:mixins [mx/static]}
   []
-  [:header
-   [:span.logo]
-   [:h1.logo-name
-    [:a {:href (rt/route-for :home)} "Mee6"]]
-   [:p.tagline "I'm Mr. Meeseeks! Look at me!"]
-   [:div.logout-header
-    [:a {:on-click logout-click} "Logout"]]])
+  (letfn [(on-logout [event]
+            (dom/prevent-default event)
+            (st/emit! (ev/->Logout)))]
+    [:header
+     [:span.logo]
+     [:h1.logo-name
+      [:a {:href (rt/route-for :home)} "Mee6"]]
+     [:p.tagline "I'm Mr. Meeseeks! Look at me!"]
+     [:div.logout-header
+      [:a {:on-click on-logout} "Logout"]]]))
 
 (mx/defc body-content-item
+  {:mixins [mx/static]}
   [{:keys [id name cron host status updatedAt] :as check}]
   [:li.item {:class (case status
                       "green" "item-ok"
@@ -33,6 +34,7 @@
      [:li [:strong "last run: "] (str updatedAt)]]]])
 
 (mx/defc body-content-summary
+  {:mixins [mx/static]}
   [checks]
   (let [total-count (count checks)
         matches-status? #(= (:status %1) %2)
