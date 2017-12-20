@@ -27,6 +27,11 @@
       (->> (gql/query text params)
            (rx/map ->LoginRetrieved)))))
 
+(defrecord RetrieveLogout []
+  ptk/WatchEvent
+  (watch [_ state stream]
+    (gql/query "mutation Logout {logout}")))
+
 (defrecord ChecksRetrieved [checks]
   ptk/UpdateEvent
   (update [_ state]

@@ -9,9 +9,6 @@
   (.preventDefault e)
   (let [username (dom/get-element-value "username")
         password (dom/get-element-value "password")]
-    (println "ENVIANDO")
-    (println "Username" username)
-    (println "Password" password)
     (st/emit! (ev/->RetrieveLogin username password))))
 
 (mx/defc main

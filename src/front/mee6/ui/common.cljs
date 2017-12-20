@@ -1,7 +1,14 @@
 (ns mee6.ui.common
   (:require [rumext.core :as mx :include-macros true]
             [cuerdas.core :as str :include-macros true]
-            [mee6.util.router :as rt]))
+            [mee6.util.router :as rt]
+            [mee6.store :as st]
+            [mee6.events :as ev]))
+
+(defn logout-click
+  [e]
+  (.preventDefault e)
+  (st/emit! (ev/->RetrieveLogout)))
 
 (mx/defc header
   []
@@ -9,7 +16,9 @@
    [:span.logo]
    [:h1.logo-name
     [:a {:href (rt/route-for :home)} "Mee6"]]
-   [:p.tagline "I'm Mr. Meeseeks! Look at me!"]])
+   [:p.tagline "I'm Mr. Meeseeks! Look at me!"]
+   [:div#logout
+    [:a {:on-click logout-click} "Logout"]]])
 
 (mx/defc body-content-item
   [{:keys [id name cron host status updatedAt] :as check}]
