@@ -123,6 +123,37 @@ select {
     flex-grow: 1;
 }
 
+/* --- Detail Page --- */
+
+.detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-header {
+    padding: 0px;
+}
+
+.detail-header {
+    padding: 1rem;
+    background-color: #ddf3d5;
+    border-left: 10px solid #9dce0a;
+    margin-top: 1rem;
+}
+
+.detail-header a {
+    text-decoration: none;
+    color: black;
+}
+.detail-header.item-ko {
+    background-color: #f1d1d8;
+    border-left-color: #fa5e59;
+}
+.detail-header.item-disabled {
+    background-color: #e7ecef;
+    border-left-color: #859cad;
+}
+
 /* --- Home Page --- */
 
 .home {

@@ -4,25 +4,24 @@
             [mee6.util.router :as rt]
             [mee6.ui.common :as common]))
 
-(mx/defc check-item
+(mx/defc header
   {:mixins [mx/static]}
   [{:keys [id name cron host status updatedAt] :as check}]
-  [:li.item {:class (case status
-                      "green" "item-ok"
-                      "red" "item-ko"
-                      "item-disabled")}
+  [:section.detail-header {:class (case status
+                                    "green" "item-ok"
+                                    "red" "item-ko"
+                                    "item-disabled")}
    [:a {:href (rt/route-for :detail {:id id})}
     [:div.item-content (str/istr "~{host} :: ~{name}")]
     [:ul.meta
      [:li [:strong "cron: "] cron]
      [:li [:strong "last run: "] (str updatedAt)]]]])
 
-(mx/defc check
+(mx/defc main
   {:mixins [mx/static]}
   [{:keys [config output error] :as check}]
-  [:div
-   [:ul.list.items
-    (check-item check)]
+  [:section.detail
+   (header check)
    [:div
     [:h3 "Latest output:"]
     [:section.code

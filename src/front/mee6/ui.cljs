@@ -51,7 +51,7 @@
      :home (home/main state)
      :detail (let [id (get-in route [:params :id])
                    check (get checks id)]
-               (detail/check check))
+               (detail/main check))
      (home/main))])
 
 (mx/defc app
