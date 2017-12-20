@@ -11,6 +11,7 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.cors :refer [wrap-cors]]
+            [ring.middleware.gzip :refer [wrap-gzip]]
             [ring.util.response :refer [resource-response]]
             [mee6.config :as cfg]
             [mee6.database :as db]
@@ -97,6 +98,7 @@
           (wrap-cookies)
           (wrap-json-body {:keywords? true})
           (wrap-json-response)
+          (wrap-gzip)
           (jetty/run-jetty options)))))
 
 (defn- stop

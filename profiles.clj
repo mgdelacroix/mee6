@@ -15,7 +15,9 @@
 
                  [funcool/cuerdas "2.0.4"]
                  [funcool/datoteka "1.0.0"]
+
                  [ring/ring-json "0.4.0" :exclusions [ring/ring-core]]
+                 [bk/ring-gzip "0.2.1"]
 
                  [compojure "1.6.0" :exclusions [ring/ring-core]]
                  [commons-codec "1.11"]
