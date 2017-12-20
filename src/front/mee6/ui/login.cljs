@@ -32,27 +32,30 @@
               (dom/prevent-default event)
               (swap! local dissoc :error)
               (st/emit! (ev/->Login data on-error)))]
-      [:div.login-wrapper
-       [:div.login
+      [:section.login
+       [:div.login-content
         [:h2 "LOGIN"]
         (when error?
-          [:span "ERROR ON LOGIN"])
-        [:form.login-form {:on-submit on-submit}
-         [:input {:type "text"
-                  :value (get-in @local [:form :username] "")
-                  :tab-index "1"
-                  :on-change on-change
-                  :name "username"
-                  :placeholder "username"}]
-         [:input {:type "password"
-                  :value (get-in @local [:form :password] "")
-                  :tab-index "2"
-                  :on-change on-change
-                  :name "password"
-                  :placeholder "password"}]
-         [:button {:type "submit"
-                  :tab-index "3"
-                   :class (when-not valid? "btn-disabled")
-                   :disabled (not valid?)
-                   :name "button"}
-          "Login"]]]])))
+          [:span.error-message "Invalid credentials"])
+        [:form {:on-submit on-submit}
+         [:div.field
+          [:input {:type "text"
+                   :value (get-in @local [:form :username] "")
+                   :tab-index "1"
+                   :on-change on-change
+                   :name "username"
+                   :placeholder "username"}]]
+         [:div.field
+          [:input {:type "password"
+                   :value (get-in @local [:form :password] "")
+                   :tab-index "2"
+                   :on-change on-change
+                   :name "password"
+                   :placeholder "password"}]]
+         [:div.submit
+          [:button {:type "submit"
+                           :tab-index "3"
+                           :class (when-not valid? "btn-disabled")
+                           :disabled (not valid?)
+                           :name "button"}
+           "Login"]]]]])))
