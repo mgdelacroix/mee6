@@ -35,7 +35,8 @@
   [{:keys [config output error] :as check}]
   [:section.detail
    (header check)
-   (if-not (empty? output)
+   (if (and (empty? error)
+            (not (empty? output)))
      [:div
       [:h3 "Latest output:"]
       [:section.code
