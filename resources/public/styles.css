@@ -224,18 +224,20 @@ select {
 .home-sidebar .sidebar-items {
     display: flex;
     flex-direction: column;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .home-sidebar .sidebar-item {
     padding: 0.5em;
-    background-color: #ddf3d5;
+    background-color: #e7ecef;
     margin-bottom: 0.5rem;
     cursor: pointer;
 }
 
 .sidebar-item.selected {
-    border-left: 10px solid #9dce0a;
+    border-left: 10px solid #859cad;
+    /* background-color: #859cad; */
+
 }
 
 .home-content {
