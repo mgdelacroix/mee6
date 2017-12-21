@@ -67,15 +67,17 @@
 
 (defn- notify-change!
   [& {:keys [check config local error current-status previous-status]}]
-  (doseq [id (or (:notify check) [])]
-    (when-let [group (resolve-notify-group config id)]
-      (sv/emit! (keyword "notifications" (:type group))
-                {:check check
+  (let [message {:check check
                  :local local
                  :error error
-                 :notify-group group
                  :current-status current-status
-                 :previous-status previous-status}))))
+                 :previous-status previous-status}
+        groups (or (:notify check) [])]
+    (sv/emit! :notifications message)
+    (doseq [id groups]
+      (when-let [group (resolve-notify-group config id)]
+        (sv/emit! (keyword "notifications" (:type group))
+                  (assoc message :notify-group group))))))
 
 (defn- execute-check
   "A function executed by the quartz job to run the check."

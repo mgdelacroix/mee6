@@ -13,10 +13,13 @@
             [ring.middleware.cors :refer [wrap-cors]]
             [ring.middleware.gzip :refer [wrap-gzip]]
             [ring.util.response :refer [resource-response]]
+            [ring.util.io :refer [piped-input-stream]]
+            [mee6.services :as sv]
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.graphql :as gql]
-            [mee6.util.logging :as log]))
+            [mee6.util.logging :as log])
+  (:import [java.io IOException OutputStream Writer]))
 
 ;; --- Router
 
@@ -47,6 +50,18 @@
            {:status 200
             :headers {"Content-Type" "application/json"}
             :body (json/encode result)})))
+
+;; (defn handle-sse
+;;   [req]
+;;   (letfn [(sse-writer [^OutputStream out]
+;;             (let [inbox (a/chan 1 (map :payload))]
+;;               (sv/sub! :notifications/email inbox)
+;;             ))]
+;;     {:headers {:content-type "text/event-stream"
+;;                :connection "close"
+;;                :cache-control "no-cache"}
+;;      :status 200
+;;      :body (piped-input-stream sse-writer)}))
 
 (defroutes app
   (GET "/" [] (resource-response "index.html" {:root "public"}))
