@@ -26,10 +26,11 @@
 
 (defn build-error-message
   [{:keys [message hint output stdout stderr type] :as error}]
-  (if (and (= type "execution-error")
-           (every? #(empty? %) [stdout stderr]))
-    (str/join " " [message "Please check the ssh connection to the host."])
-    (str/join "\n\n" (filter #(not (empty? %)) [message hint output stderr stdout]))))
+  (let [output (if-not (empty? output) (str "---\n" output))]
+    (if (and (= type "execution-error")
+             (every? #(empty? %) [stdout stderr]))
+      (str/join " " [message "Please check the ssh connection to the host."])
+      (str/join "\n\n" (filter #(not (empty? %)) [message hint output stderr stdout])))))
 
 (mx/defc main
   {:mixins [mx/static]}
