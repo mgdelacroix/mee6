@@ -5,6 +5,7 @@
             [cuerdas.core :as str]
             [mount.core :as mount :refer [defstate]]
             [mee6.config :as cfg]
+            [mee6.exceptions :as exc]
             [mee6.database :refer [state]]
             [mee6.modules :as mod]
             [mee6.scheduler :as schd]

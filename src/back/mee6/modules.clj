@@ -6,6 +6,7 @@
             [cheshire.core :as json]
             [datoteka.core :as fs]
             [cuerdas.core :as str]
+            [mee6.exceptions :as exc]
             [mee6.config :as cfg]
             [mee6.uuid :as uuid]))
 
@@ -28,7 +29,8 @@
   (let [script (or (resolve-from-classpath module)
                    (resolve-from-userpath module))]
     (if (nil? script)
-      (throw (ex-info (str/istr "Script not found for module '~{module}'.") {}))
+      (exc/raise :type :engine-error
+                 :message (str/istr "Script not found for module '~{module}'."))
       script)))
 
 (defn- run-script
@@ -61,17 +63,23 @@
         args (json/encode {:params check :local (or local {})})
         script (resolve-script module)
         {:keys [exit out err] :as result} (run-script host script args)]
-    (if (zero? exit)
-      (let [out (json/decode out true)]
-        (if (s/valid? ::script-output out)
-          [(keyword (:status out)) (:local out)]
-          (throw (ex-info "Invalid output from script"
-                          {:hint (s/explain-str ::script-output out)}))))
+    (if-not (zero? exit)
+      (exc/raise :type :execution-error
+                 :message "Error running the script."
+                 :stdout out
+                 :stderr err)
       (try
-        (let [content (json/decode err true)]
-          (throw (ex-info "Script returns an error" (or content {}))))
+        (let [out (json/decode out true)]
+          (if (s/valid? ::script-output out)
+            [(keyword (:status out)) (:local out)]
+            (exc/raise :type :module-error
+                       :message "Output does not conform with mee6's spec."
+                       :output out
+                       :hint (s/explain-str ::script-output out))))
         (catch com.fasterxml.jackson.core.JsonParseException e
-          (throw (ex-info "Error on executing the script" result)))))))
+          (exc/raise :type :module-error
+                     :message "Output is not a valid json."
+                     :output out))))))
 
 (declare execute-user-script)
 

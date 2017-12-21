@@ -30,7 +30,7 @@ def handle(params, local):
 
 try:
     # Parse params
-    if len(sys.argv) != 2:
+    if len(sys.argv) <= 2:
         raise RuntimeError("invalid arguments")
     args = json.loads(sys.argv[1])
 
@@ -51,9 +51,6 @@ try:
     # Return the output
     print(result, file=sys.stdout, flush=True)
     sys.exit(0);
-except RuntimeError as e:
-    print(json.dumps({"hint": str(e)}), file=sys.stderr, flush=True)
-    sys.exit(-1)
 except Exception as e:
     print(json.dumps({"error": str(e)}), file=sys.stderr, flush=True)
     sys.exit(-1);
