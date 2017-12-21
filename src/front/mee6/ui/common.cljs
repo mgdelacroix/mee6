@@ -14,7 +14,7 @@
             (dom/prevent-default event)
             (st/emit! (ev/->Logout)))]
     [:header
-     [:h1.logo [:a {:href (rt/route-for :home)} "Mee6"]]
+     [:div.logo {:on-click #(st/emit! (rt/navigate :home))} "Mee6"]
      [:div.tagline {:on-click ntf/request-permission}
       "I'm Mr. Meeseeks! Look at me!"]
      [:div.logout

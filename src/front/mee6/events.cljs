@@ -30,7 +30,6 @@
 (defrecord Login [params on-error]
   ptk/WatchEvent
   (watch [_ state stream]
-    (println "Login$watch" params on-error)
     (letfn [(handle-error [{:keys [type] :as error}]
               (if (= type "wrong-credentials")
                 (do

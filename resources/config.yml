@@ -44,7 +44,6 @@ checks:
     tags:
       - bar
     module: user-script
-    file: /tmp/myscript
 
   - name: disk usage on /dev/sda1
     hosts:
