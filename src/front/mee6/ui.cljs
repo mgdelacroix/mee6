@@ -3,12 +3,12 @@
             [beicon.core :as rx]
             [mee6.store :as st]
             [mee6.events :as ev]
-            [mee6.util.router :as rt]
-            [mee6.util.timers :as ts]
             [mee6.ui.common :as common]
             [mee6.ui.detail :as detail]
             [mee6.ui.home :as home]
             [mee6.ui.login :as login]
+            [mee6.util.router :as rt]
+            [mee6.util.timers :as ts]
             [mee6.util.dom :as dom]))
 
 (defn- on-error

@@ -2,8 +2,8 @@
   (:require [potok.core :as ptk]
             [beicon.core :as rx]
             [mee6.graphql :as gql]
-            [mee6.util.router :as rt]
-            [mee6.store :as st]))
+            [mee6.store :as st]
+            [mee6.util.router :as rt]))
 
 ;; --- Helpers
 

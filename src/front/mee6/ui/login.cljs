@@ -2,18 +2,26 @@
   (:require [cljs.spec.alpha :as s :include-macros true]
             [rumext.core :as mx :include-macros true]
             [cuerdas.core :as str :include-macros true]
+            [mee6.events :as ev]
+            [mee6.store :as st]
             [mee6.util.dom :as dom]
             [mee6.util.forms :as fm]
-            [mee6.events :as ev]
-            [mee6.store :as st]))
+            [mee6.util.router :as rt]))
 
 (s/def ::username ::fm/non-empty-string)
 (s/def ::password ::fm/non-empty-string)
 (s/def ::login-form
   (s/keys :req-un [::username ::password]))
 
+(defn- will-mount
+  [own]
+  (when (:token @st/state)
+    (st/emit! (rt/navigate :home)))
+  own)
+
 (mx/defcs main
-  {:mixins [mx/static (mx/local)]}
+  {:mixins [mx/static (mx/local)]
+   :will-mount will-mount}
   [{:keys [rum/local] :as own}]
   (let [data   (:form @local)
         error? (:error @local)

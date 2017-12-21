@@ -1,6 +1,7 @@
 (ns mee6.store
   (:require [beicon.core :as rx]
-            [potok.core :as ptk]))
+            [potok.core :as ptk])
+  (:import [goog.net Cookies]))
 
 (def ^:dynamic *on-error* identity)
 
@@ -15,7 +16,8 @@
 
 (defn- initial-state
   []
-  {})
+  (let [cookies (Cookies. js/document)]
+    {:token (.get cookies "auth-token")}))
 
 (defn init
   []
