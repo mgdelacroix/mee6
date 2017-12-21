@@ -1,10 +1,11 @@
 (ns mee6.ui.common
   (:require [rumext.core :as mx :include-macros true]
             [cuerdas.core :as str :include-macros true]
-            [mee6.util.router :as rt]
-            [mee6.util.dom :as dom]
+            [mee6.events :as ev]
+            [mee6.notifications :as ntf]
             [mee6.store :as st]
-            [mee6.events :as ev]))
+            [mee6.util.router :as rt]
+            [mee6.util.dom :as dom]))
 
 (mx/defc header
   {:mixins [mx/static]}
@@ -16,7 +17,7 @@
      [:span.logo]
      [:h1.logo-name
       [:a {:href (rt/route-for :home)} "Mee6"]]
-     [:p.tagline "I'm Mr. Meeseeks! Look at me!"]
+     [:p.tagline {:on-click ntf/request-permission} "I'm Mr. Meeseeks! Look at me!"]
      [:div.logout-header
       [:a {:on-click on-logout} "Logout"]]]))
 
