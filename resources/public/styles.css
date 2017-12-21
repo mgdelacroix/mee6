@@ -254,7 +254,7 @@ select {
 .home-content .item {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 0.5rem;
     background-color: #ddf3d5;
     border-left: 10px solid #9dce0a;
     margin-top: 0.5rem;
