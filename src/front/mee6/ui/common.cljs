@@ -14,11 +14,10 @@
             (dom/prevent-default event)
             (st/emit! (ev/->Logout)))]
     [:header
-     [:span.logo]
-     [:h1.logo-name
-      [:a {:href (rt/route-for :home)} "Mee6"]]
-     [:p.tagline {:on-click ntf/request-permission} "I'm Mr. Meeseeks! Look at me!"]
-     [:div.logout-header
+     [:h1.logo [:a {:href (rt/route-for :home)} "Mee6"]]
+     [:div.tagline {:on-click ntf/request-permission}
+      "I'm Mr. Meeseeks! Look at me!"]
+     [:div.logout
       [:a {:on-click on-logout} "Logout"]]]))
 
 (mx/defc summary
