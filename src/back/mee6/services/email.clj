@@ -2,12 +2,13 @@
   (:require [clojure.core.async :as a]
             [cuerdas.core :as str]
             [hiccup.core :refer [html]]
-            [mee6.config :as cfg]
-            [mee6.util.logging :as log]
-            [mee6.services :as sv]
             [mount.core :refer [defstate]]
             [postal.core :as postal]
-            [yaml.core :as yaml]))
+            [mee6.config :as cfg]
+            [mee6.util.logging :as log]
+            [mee6.util.template :as tmpl]
+            [mee6.services :as sv]
+            [mee6.util.yaml :as yaml]))
 
 (declare smtp-send!)
 (declare console-send!)
@@ -83,24 +84,20 @@
 
 ;; --- Email Building
 
-(defn- dump-yaml
-  [value]
-  (yaml/generate-string value :dumper-options {:flow-style :block}))
-
 (defn- build-email-body
   [{:keys [check local error current-status previous-status] :as payload}]
-  (html
-   [:div.title
-    [:h1 (case current-status :green "SUCCESS" :red "FAILED" :grey "ERROR")]
-    [:div.data
-     [:ul
-      [:li [:strong "host:"] (get-in check [:host :uri])]
-      [:li [:strong "name:"] (get-in check [:name])]
-      [:li
-       [:strong "result:"]
-       (if error
-         [:pre (:stacktrace error)]
-         [:pre (dump-yaml local)])]]]]))
+  (let [params {:current-status (name current-status)
+                :host (get-in check [:host :uri])
+                :name (:name check)
+                :previous-status (name previous-status)
+                :class-status (case current-status
+                                :green "status-ok"
+                                :red "status-ko"
+                                :grey "status-disabled")
+                :local (when-not (empty? local) (yaml/encode local))
+                :error (when-not (empty? error) (yaml/encode error))
+                :config (yaml/encode check)}]
+    (tmpl/render "mail.html" params)))
 
 (defn- build-email-subject
   [{:keys [check local error current-status previous-status] :as payload}]
@@ -121,5 +118,3 @@
     (catch Throwable e
       (log/err "Unexpected error on building email" e)
       nil)))
-
-
