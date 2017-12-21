@@ -108,12 +108,12 @@
   [output]
   (try
     (let [data (json/decode output true)]
-      (when-not (s/valid? ::script-output-json output)
+      (when-not (s/valid? ::script-output-json data)
         (exc/raise :type :module-error
                    :message "Output does not conform with mee6's spec."
                    :output (yaml/encode data)
-                   :hint (s/explain-str ::script-output-json output)))
-      [(keyword (:status output)) (:local output)])
+                   :hint (s/explain-str ::script-output-json data)))
+      [(keyword (:status data)) (:local data)])
     (catch com.fasterxml.jackson.core.JsonParseException e
       ::invalid)))
 
