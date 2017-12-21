@@ -176,13 +176,32 @@ select {
     border-left-color: #859cad;
 }
 
-.detail-header .item-content {
+.detail-header .item-title {
     font-size: 1.2rem;
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.detail-header .item-meta {
+    display: flex;
+    padding-top: 1em;
+    flex-direction: row;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.detail-header .item-meta .cron {
+    font-size: 1em;
+    flex-basis: 11em;
+}
+
+.detail-header .item-meta .lastrun {
+    font-size: 1em;
+    flex-basis: 11em;
+}
+
 
 /* --- Home Page --- */
 
@@ -228,10 +247,27 @@ select {
 }
 
 .home-content .item {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
     background-color: #ddf3d5;
     border-left: 10px solid #9dce0a;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.home-content .item-title {
+    white-space: nowrap;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.home-content .item-metadata {
+    font-size: 0.8rem;
+    padding-top: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .home-content .item a {
@@ -245,14 +281,6 @@ select {
 .home-content .item-disabled {
     background-color: #e7ecef;
     border-left-color: #859cad;
-}
-
-.home-content .item-content {
-    font-size: 1.2rem;
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 @media only screen and (max-width: 650px) {

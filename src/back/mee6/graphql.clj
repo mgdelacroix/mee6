@@ -13,10 +13,18 @@
 (def ^:private identity-conformer
   (gql/conformer identity))
 
+(def ^:private date-parse-conformer
+  (gql/conformer (fn [v] (dt/from-epoch-milli v))))
+
+(def ^:private date-serialize-conformer
+  (gql/conformer (fn [v] (dt/to-epoch-milli v))))
+
 (def ^:private schema-data
   {:scalars
    {:dynobj {:parse identity-conformer
-             :serialize identity-conformer}}
+             :serialize identity-conformer}
+    :date  {:parse date-parse-conformer
+            :serialize date-serialize-conformer}}
    :objects
    {:check {:fields {:id {:type :ID}
                      :name {:type :String}
@@ -31,7 +39,7 @@
                                               :default-value "json"}}
                               :resolve :resolve-output}
                      :error {:type :dynobj :resolve :resolve-error}
-                     :updatedAt {:type :String
+                     :updatedAt {:type :date
                                  :resolve :resolve-updated-at}
                      :config {:type :String
                               :args {:format {:type :String

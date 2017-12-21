@@ -34,6 +34,7 @@
  {:dependencies [[org.clojure/clojurescript "1.9.946"]
                  [funcool/rumext "1.1.0"]
                  [rum "0.10.8" :exclusions [sablono]]
+                 [cljsjs/date-fns "1.29.0-0"]
                  [sablono "0.8.0"]
 
                  [funcool/beicon "4.1.0"]

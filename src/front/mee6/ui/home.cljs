@@ -4,20 +4,21 @@
             [mee6.util.router :as rt]
             [mee6.store :as st]
             [mee6.ui.common :as common]
-            [mee6.events :as ev]))
+            [mee6.events :as ev]
+            [mee6.util.time :as tm]))
 
 (mx/defc check-item
   {:mixins [mx/static]}
-  [{:keys [id name cron host status updatedAt] :as check}]
-  [:li.item {:class (case status
+  [{:keys [id name cron host status updated-at] :as check}]
+  [:li.item {:on-click #(st/emit! (rt/navigate :detail {:id id}))
+             :class (case status
                       "green" "item-ok"
                       "red" "item-ko"
                       "item-disabled")}
-   [:a {:href (rt/route-for :detail {:id id})}
-    [:div.item-content (str/istr "~{host} :: ~{name}")]
-    [:ul.meta
-     [:li [:strong "cron: "] cron]
-     [:li [:strong "last run: "] (str updatedAt)]]]])
+   [:div.item-title (str/istr "~{host} :: ~{name}")]
+   [:div.item-metadata
+    [:span "Updated: "]
+    [:span (tm/timeago (tm/parse updated-at)) " ago"]]])
 
 (defn toggle-selected-tag
   [tag e]

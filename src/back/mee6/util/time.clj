@@ -30,6 +30,14 @@
 
 ;; --- Public Api
 
+(defn to-epoch-milli
+  [^Instant v]
+  (.toEpochMilli v))
+
+(defn from-epoch-milli
+  [^long v]
+  (Instant/ofEpochMilli v))
+
 (defn from-string
   [s]
   {:pre [(string? s)]}
