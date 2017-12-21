@@ -39,7 +39,7 @@
   (let [content (slurp script)
         tmpname (uuid/random-str)
         command (str/istr "cat > /tmp/~{tmpname}.py <<EOF\n~{content}\nEOF\n\n"
-                          "/usr/bin/env python3 /tmp/~{tmpname}.py '~{args}'")]
+                          "/usr/bin/env python3 /tmp/~{tmpname}.py ~{args}")]
     (if (= host :mee6.engine/localhost)
       (shell/sh "bash" "-c" command)
       (shell/sh "timeout" "5" "ssh" "-q" uri command))))
@@ -56,11 +56,38 @@
 (s/def ::local map?)
 (s/def ::script-output (s/keys :req-un [::status ::local]))
 
-(defn execute-module
+(defn- prepare-kwargs
+  [data]
+  (letfn [(prepare-key [key]
+            (str "--" (name key)))
+          (prepare-val [val]
+            (if (string? val)
+              (-> (str/replace val "'" "\\'")
+                  (str/surround "'"))
+              (prepare-val (json/encode val))))
+
+          (process-keyval [acc key val]
+            (let [pkey (prepare-key key)]
+              (if (sequential? val)
+                (into acc (->> (map prepare-val val)
+                               (map #(vector pkey %))))
+                (conj acc [pkey (prepare-val val)]))))]
+    (reduce-kv process-keyval [] data)))
+
+(defn- prepare-arguments
+  [check local]
+  (let [initial (-> (json/encode {:params check :local (or local {})})
+                    (str/replace "'" "\\'")
+                    (str/surround "'"))
+        kwargs  (prepare-kwargs (dissoc check :name :host :tags :cron))]
+    (->> (into [initial] (mapcat identity kwargs))
+         (str/join " "))))
+
+(defn- execute-module
   "Resolve and execute check."
   [{:keys [module host] :as check} local]
   (let [local (or local {})
-        args (json/encode {:params check :local (or local {})})
+        args (prepare-arguments check local)
         script (resolve-script module)
         {:keys [exit out err] :as result} (run-script host script args)]
     (if-not (zero? exit)
