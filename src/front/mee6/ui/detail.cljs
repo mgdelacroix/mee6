@@ -29,16 +29,19 @@
   [{:keys [config output error] :as check}]
   [:section.detail
    (header check)
-   [:div
-    [:h3 "Latest output:"]
-    [:section.code
-     [:pre (:output check)]]]
+   (if-not (empty? output)
+     [:div
+      [:h3 "Latest output:"]
+      [:section.code
+       [:pre output]]])
 
-   (when-let [{:keys [err]} error]
+   (when-let [{:keys [stdout stderr message]} error]
      [:div
       [:h3 "Error:"]
-      [:section.code
-       [:pre err]]])
+      (let [connection-warning (if (every? #(empty? %) [stdout stderr])
+                                 "Please check the ssh connection to the host.")]
+        [:section.code
+         [:pre (str/join " " [message connection-warning])]])])
 
    [:h3 "Check configuration:"]
    [:section.code
