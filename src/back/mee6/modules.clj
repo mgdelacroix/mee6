@@ -2,6 +2,7 @@
   "Dynamic module loading and running."
   (:require [clojure.java.shell :as shell]
             [clojure.java.io :as io]
+            [clojure.walk :as walk]
             [clojure.spec.alpha :as s]
             [cheshire.core :as json]
             [datoteka.core :as fs]
@@ -9,29 +10,38 @@
             [mee6.exceptions :as exc]
             [mee6.config :as cfg]
             [mee6.uuid :as uuid]
+            [mee6.util.yaml :as yaml]
             [mee6.util.crypto :as crypto]))
 
+(s/def ::status #{"green" "red"})
+(s/def ::local map?)
+(s/def ::script-output-json (s/keys :req-un [::status ::local]))
+(s/def ::script-output-string (s/keys :req-un [::status]))
+
 (defn- resolve-from-classpath
-  [module]
-  {:pre [(string? module)]}
-  (io/resource (str/istr "scripts/~{module}")))
+  "Respolve module script by name from the classpath."
+  [name]
+  {:pre [(string? name)]}
+  (io/resource (str/istr "scripts/~{name}")))
 
 (defn- resolve-from-userpath
-  [module]
-  {:pre [(string? module)]}
+  "Resolve module script by name from the user defined paths."
+  [name]
+  {:pre [(string? name)]}
   (letfn [(resolve [path]
-            (let [path (fs/join path module)]
+            (let [path (fs/join path name)]
               (when (fs/regular-file? path)
                 (reduced path))))]
     (reduce #(resolve %2) nil (:modules cfg/config []))))
 
 (defn- resolve-script
-  [module]
-  (let [script (or (resolve-from-classpath module)
-                   (resolve-from-userpath module))]
+  "Resolve module script by name."
+  [name]
+  (let [script (or (resolve-from-classpath name)
+                   (resolve-from-userpath name))]
     (if (nil? script)
       (exc/raise :type :engine-error
-                 :message (str/istr "Script not found for module '~{module}'."))
+                 :message (str/istr "Script not found for module '~{name}'."))
       script)))
 
 (defn- run-script
@@ -45,18 +55,6 @@
     (if (= host :mee6.engine/localhost)
       (shell/sh "bash" "-c" command)
       (shell/sh "timeout" "5" "ssh" "-q" uri command))))
-
-(defn- run-user-script
-  [{:keys [uri] :as host} script]
-  (let [command (str/istr "cat > /tmp/.mee6_user_script <<EOF\n~{script}\nEOF\n\n"
-                          "bash /tmp/.mee6_user_script")]
-    (if (= host :mee6.engine/localhost)
-      (shell/sh "bash" "-c" command)
-      (shell/sh "timeout" "5" "ssh" "-q" uri command))))
-
-(s/def ::status #{"green" "red"})
-(s/def ::local map?)
-(s/def ::script-output (s/keys :req-un [::status ::local]))
 
 (defn- prepare-kwargs
   [data]
@@ -85,7 +83,41 @@
     (->> (into [initial] (mapcat identity kwargs))
          (str/join " "))))
 
-(defn- execute-module
+(defn- parse-string-output
+  [output]
+  (letfn [(parse-kvline [state line]
+            (let [[key value] (map str/trim (str/split line #":" 2))]
+              (assoc! state key value)))
+          (parse-kvlines [kvlines]
+            (persistent!
+             (reduce parse-kvline (transient {}) kvlines)))]
+    (let [[stdout kvlines] (split-with #(not= % "---") (str/lines output))
+          stdout (str/join "\n" stdout)
+          data   (-> (parse-kvlines (rest kvlines))
+                     (walk/keywordize-keys))
+          status (keyword (:status data))
+          local  (assoc data :stdout stdout)]
+      (when-not (s/valid? ::script-output-string data)
+        (exc/raise :type :module-error
+                   :message "Output does not conform with mee6's spec."
+                   :output (yaml/encode data)
+                   :hint (s/explain-str ::script-output-string data)))
+      [status local])))
+
+(defn- parse-json-output
+  [output]
+  (try
+    (let [data (json/decode output true)]
+      (when-not (s/valid? ::script-output-json output)
+        (exc/raise :type :module-error
+                   :message "Output does not conform with mee6's spec."
+                   :output (yaml/encode data)
+                   :hint (s/explain-str ::script-output-json output)))
+      [(keyword (:status output)) (:local output)])
+    (catch com.fasterxml.jackson.core.JsonParseException e
+      ::invalid)))
+
+(defn execute
   "Resolve and execute check."
   [{:keys [module host] :as check} local]
   (let [local (or local {})
@@ -97,52 +129,7 @@
                  :message "Error running the script."
                  :stdout out
                  :stderr err)
-      (try
-        (let [out (json/decode out true)]
-          (if (s/valid? ::script-output out)
-            [(keyword (:status out)) (:local out)]
-            (exc/raise :type :module-error
-                       :message "Output does not conform with mee6's spec."
-                       :output out
-                       :hint (s/explain-str ::script-output out))))
-        (catch com.fasterxml.jackson.core.JsonParseException e
-          (exc/raise :type :module-error
-                     :message "Output is not a valid json."
-                     :output out))))))
-
-(declare execute-user-script)
-
-(defn execute
-  "Resolve and execute check."
-  [{:keys [module host] :as check} local]
-  (if (= module "user-script")
-    (execute-user-script check local)
-    (execute-module check local)))
-
-;; --- Special case: user script
-
-(defn- parse-kvline
-  [state line]
-  (let [[key value] (map str/trim (str/split line #":" 2))]
-    (assoc! state (keyword "script" key) value)))
-
-(defn- parse-kvlines
-  [kvlines]
-  (persistent!
-   (reduce parse-kvline (transient {}) kvlines)))
-
-(defn- process-script-output
-  [output]
-  (let [[stdout kvlines] (split-with #(not= % "---") (str/lines output))]
-    {:stdout (str/join "\n" stdout)
-     :kvpairs (parse-kvlines (rest kvlines))}))
-
-(defn- execute-user-script
-  "Resolve and execute check."
-  [{:keys [file host args] :as check} local]
-  (let [{:keys [exit] :as result} (run-user-script host (slurp (io/file file)))
-        local (-> (:out result)
-                  (process-script-output)
-                  (assoc :exitcode exit))
-        status (case exit 0 :green 1 :red :grey)]
-    [status local]))
+      (let [result (parse-json-output out)]
+        (if (= result ::invalid)
+          (parse-string-output out)
+          result)))))
