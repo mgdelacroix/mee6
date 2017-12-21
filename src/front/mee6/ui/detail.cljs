@@ -24,6 +24,12 @@
        (tm/format (tm/parse updated-at) "dddd, MMMM Do YYYY, h:mm:ss a")
        "---")]]])
 
+(defn build-error-message
+  [{:keys [stdout stderr message stacktrace] :as error}]
+  (if (every? #(empty? %) [stdout stderr stacktrace])
+    (str/join " " [message "Please check the ssh connection to the host."])
+    (str/join "\n\n" (filter #(not (empty? %)) [message stderr stdout stacktrace]))))
+
 (mx/defc main
   {:mixins [mx/static]}
   [{:keys [config output error] :as check}]
@@ -38,10 +44,8 @@
    (when-let [{:keys [stdout stderr message]} error]
      [:div
       [:h3 "Error:"]
-      (let [connection-warning (if (every? #(empty? %) [stdout stderr])
-                                 "Please check the ssh connection to the host.")]
-        [:section.code
-         [:pre (str/join " " [message connection-warning])]])])
+      [:section.code
+       [:pre (build-error-message error)]]])
 
    [:h3 "Check configuration:"]
    [:section.code
