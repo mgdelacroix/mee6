@@ -25,10 +25,11 @@
        "---")]]])
 
 (defn build-error-message
-  [{:keys [stdout stderr message stacktrace] :as error}]
-  (if (every? #(empty? %) [stdout stderr stacktrace])
+  [{:keys [message hint output stdout stderr type] :as error}]
+  (if (and (= type "execution-error")
+           (every? #(empty? %) [stdout stderr]))
     (str/join " " [message "Please check the ssh connection to the host."])
-    (str/join "\n\n" (filter #(not (empty? %)) [message stderr stdout stacktrace]))))
+    (str/join "\n\n" (filter #(not (empty? %)) [message hint output stderr stdout]))))
 
 (mx/defc main
   {:mixins [mx/static]}
