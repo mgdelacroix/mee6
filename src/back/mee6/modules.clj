@@ -8,18 +8,19 @@
             [cuerdas.core :as str]
             [mee6.exceptions :as exc]
             [mee6.config :as cfg]
-            [mee6.uuid :as uuid]))
+            [mee6.uuid :as uuid]
+            [mee6.util.crypto :as crypto]))
 
 (defn- resolve-from-classpath
   [module]
   {:pre [(string? module)]}
-  (io/resource (str/istr "scripts/~{module}.py")))
+  (io/resource (str/istr "scripts/~{module}")))
 
 (defn- resolve-from-userpath
   [module]
   {:pre [(string? module)]}
   (letfn [(resolve [path]
-            (let [path (fs/join path (str module ".py"))]
+            (let [path (fs/join path module)]
               (when (fs/regular-file? path)
                 (reduced path))))]
     (reduce #(resolve %2) nil (:modules cfg/config []))))
@@ -37,9 +38,10 @@
   "Executes a local script by name on remote host."
   [{:keys [uri] :as host} script args]
   (let [content (slurp script)
-        tmpname (uuid/random-str)
-        command (str/istr "cat > /tmp/~{tmpname}.py <<EOF\n~{content}\nEOF\n\n"
-                          "/usr/bin/env python3 /tmp/~{tmpname}.py ~{args}")]
+        tmpname (crypto/digest-data content)
+        command (str/istr "cat > /tmp/~{tmpname} <<EOF\n~{content}\nEOF\n\n"
+                          "chmod +x /tmp/~{tmpname}\n\n"
+                          "/tmp/~{tmpname} ~{args}\n\n")]
     (if (= host :mee6.engine/localhost)
       (shell/sh "bash" "-c" command)
       (shell/sh "timeout" "5" "ssh" "-q" uri command))))
