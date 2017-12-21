@@ -17,12 +17,13 @@
              "item-disabled")}
    [:div.item-title (str/istr "~{host} :: ~{name}")]
    [:div.item-meta
-    [:div.cron [:strong "cron: "] cron]
+    [:div.cron
+     [:span [:strong "cron: "] cron]
     [:div.lastrun
-     [:strong "last run: "]
-     (if updated-at
-       (tm/format (tm/parse updated-at) "dddd, MMMM Do YYYY, h:mm:ss a")
-       "---")]]])
+     [:span [:strong "last run: "]
+      (if updated-at
+        (tm/format (tm/parse updated-at) "Do, MMM YYYY, h:mm:ss a")
+        "---")]]]]])
 
 (defn build-error-message
   [{:keys [message hint output stdout stderr type] :as error}]

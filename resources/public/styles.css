@@ -197,13 +197,26 @@ select {
 
 .detail-header .item-meta .cron {
     font-size: 1em;
-    flex-basis: 11em;
+    padding-right: 0.5em;
+    /* flex-basis: 11em; */
 }
 
 .detail-header .item-meta .lastrun {
     font-size: 1em;
-    flex-basis: 11em;
+    /* padding: 10px */
+    /* flex-basis: 11em; */
 }
+
+.detail-header .item-meta .lastrun span {
+    text-overflow: ellipsis;
+}
+
+@media only screen and (max-width: 650px) {
+    .detail-header .item-meta {
+        flex-direction: column;
+    }
+}
+
 
 
 /* --- Home Page --- */
@@ -308,7 +321,8 @@ select {
     }
 }
 
-/* --- Home Summary --- */
+/* --- Summary --- */
+
 .summary {
     display: flex;
     margin-bottom: 1rem;
@@ -339,7 +353,7 @@ select {
     display: flex;
     min-width: 22em;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 .summary .data li {
     display: flex;
