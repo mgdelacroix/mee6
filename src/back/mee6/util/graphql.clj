@@ -20,14 +20,18 @@
        (gql-util/attach-resolvers resolvers)
        (gql-schema/compile))))
 
-(defn execute
-  "Execute a query on the provided schema."
-  ([schema query params] (execute schema query params {}))
-  ([schema query params context]
-   (gql/execute schema query params context)))
-
 (defn as-error-map
   "Convert an exception in a graphql-like error map."
   [err]
   {:errors [(gql-util/as-error-map err)]
-   :stacktrace (st/print-stack-trace err)})
+   :stacktrace (with-out-str (st/print-stack-trace err))})
+
+(defn execute
+  "Execute a query on the provided schema."
+  ([schema query params] (execute schema query params {}))
+  ([schema query params context]
+   (try
+     (gql/execute schema query params context)
+     (catch Throwable e
+       (as-error-map e)))))
+

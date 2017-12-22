@@ -71,7 +71,6 @@
     (try
       (handler request)
       (catch Throwable e
-        (.printStackTrace e)
         (throw e)))))
 
 ;; --- API

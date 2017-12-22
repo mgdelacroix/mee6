@@ -5,6 +5,7 @@
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.engine :as eng]
+            [mee6.exceptions :as exc]
             [mee6.util.graphql :as gql]
             [mee6.util.yaml :as yaml]
             [mee6.util.time :as dt]
@@ -62,7 +63,8 @@
 (defn resolve-checks
   [ctx args value]
   (when-not (:authenticated ctx)
-    (throw (ex-info "Not authenticated" {:type :not-authorized})))
+    (exc/raise :message "Not authenticated"
+               :type :not-authorized))
   eng/checks)
 
 (defn resolve-params
@@ -143,8 +145,4 @@
 
 (defn execute
   [query params context]
-  (try
-    (gql/execute schema query params context)
-    (catch Throwable e
-      (.printStackTrace e)
-      (gql/as-error-map e))))
+  (gql/execute schema query params context))
