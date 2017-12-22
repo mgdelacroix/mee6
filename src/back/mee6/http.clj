@@ -1,6 +1,7 @@
 (ns mee6.http
   (:require [clojure.core.async :as a]
             [clojure.java.io :as io]
+            [clojure.tools.trace :refer [trace]]
             [cuerdas.core :as str]
             [cheshire.core :as json]
             [mount.core :refer [defstate]]
@@ -55,28 +56,45 @@
 
 (defn handle-sse
   [req]
-  (letfn [(write-message [writer message
+  (letfn [(write-message [writer message]
+            (try
+              (doto writer
+                (.write message)
+                (.flush))
+              true
+              (catch IOException e
+                (.printStackTrace e)
+                (println e)
+
+                false)))
+
           (sse-loop [^OutputStream out]
-            (let [inbox (a/chan 1 (map :payload))
-                  writer (io/make-writer out {})]
-              (sv/sub! :notifications/email inbox)
-              (loop []
-                (let [notification (a/<!! inbox)
-                      message (str/istr "event: message\n"
-                                        "data: ~(json/encode notification)\n\n")]
-                  (try
-                    (doto writer
-                      (.write message)
-                      (.flush))
-                    (recur)
-                    (catch IOException e
-                      (when-not (= "Pipe closed" (.getMessage e))
-                        (throw e)))
-                    (finally
-                      (a/close! inbox)))))))]
-    {:headers {:content-type "text/event-stream"
-               :connection "close"
-               :cache-control "no-cache"}
+            (try
+              (let [inbox (a/chan 10 (map :payload))
+                    writer (io/make-writer out {})]
+                (a/go []
+                  (println "start inner loop")
+                  (dotimes [i 5]
+                    (println "inner loop generate message")
+                    (a/>! inbox {:payload {:counter i}}))
+                  #_(a/close! inbox))
+                ;; (sv/sub! :notifications inbox)
+                (loop []
+                  (let [[message port] (a/alts!! [inbox (a/timeout 1000)])]
+                    (let [message (json/encode message)
+                          buffer  (str/istr "event: message\n"
+                                            "data: ~{message}\n\n")]
+                      (if (write-message writer buffer)
+                        (recur)
+                        (a/close! inbox))))))
+              (catch Throwable e
+                (println e)
+
+                (.printStackTrace e))))]
+
+    {:headers {"content-type" "text/event-stream;charset=UTF-8"
+               "cache-control" "no-cache"
+               "transfer-encoding" "chunked"}
      :status 200
      :body (piped-input-stream sse-loop)}))
 
@@ -84,6 +102,7 @@
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (POST "/graphql" request (handle-graphql request))
   (GET  "/graphiql" request (handle-graphiql request))
+  (GET  "/sse" request (handle-sse request))
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))
 
@@ -119,6 +138,7 @@
     (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)]
       (-> app
+          (wrap-errors)
           (wrap-cors :access-control-allow-origin [#".*"]
                      :access-control-allow-credentials "true"
                      :access-control-allow-methods [:get :post :options]

@@ -146,5 +146,4 @@
   (try
     (gql/execute schema query params context)
     (catch Throwable e
-      (.printStackTrace e)
       (gql/as-error-map e))))
