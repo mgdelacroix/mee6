@@ -1,6 +1,7 @@
 (ns mee6.util.graphql
   (:refer-clojure :exclude [compile])
-  (:require [com.walmartlabs.lacinia :as gql]
+  (:require [clojure.stacktrace :as st]
+            [com.walmartlabs.lacinia :as gql]
             [com.walmartlabs.lacinia.util :as gql-util ]
             [com.walmartlabs.lacinia.schema :as gql-schema]))
 
@@ -28,4 +29,5 @@
 (defn as-error-map
   "Convert an exception in a graphql-like error map."
   [err]
-  {:errors [(gql-util/as-error-map err)]})
+  {:errors [(gql-util/as-error-map err)]
+   :stacktrace (st/print-stack-trace err)})
