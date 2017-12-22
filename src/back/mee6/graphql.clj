@@ -77,7 +77,8 @@
 
 (defn resolve-tags
   [ctx args {:keys [tags host]}]
-  (map name (mapcat set [[(:id host)] tags])))
+  (let [host (if (identical? host ::eng/localhost) "localhost" (:id host))]
+    (vec (into #{host} (comp (filter identity) (map name)) tags))))
 
 (defn resolve-status
   [ctx args {:keys [id]}]
@@ -143,4 +144,5 @@
   (try
     (gql/execute schema query params context)
     (catch Throwable e
+      (.printStackTrace e)
       (gql/as-error-map e))))

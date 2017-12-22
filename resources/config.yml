@@ -27,7 +27,7 @@ checks:
   - name: http status
     cron: "*/10 * * * * ?"
     hosts:
-      - testhost
+      - localhost
     url: https://httpbin.org/status/200
     tags:
       - foo

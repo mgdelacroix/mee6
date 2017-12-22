@@ -87,7 +87,6 @@
     (log/inf "Starting http server on port" (:port http))
     (let [options (merge defaults http)]
       (-> app
-          (wrap-errors)
           (wrap-cors :access-control-allow-origin [#".*"]
                      :access-control-allow-credentials "true"
                      :access-control-allow-methods [:get :post :options]
@@ -99,6 +98,7 @@
           (wrap-json-body {:keywords? true})
           (wrap-json-response)
           (wrap-gzip)
+          (wrap-errors)
           (jetty/run-jetty options)))))
 
 (defn- stop

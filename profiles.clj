@@ -84,6 +84,7 @@
                         :verbose true}}]}
   :clean-targets ^{:protect false} ["resources/public/js"]}
  :dev {:main ^:skip-aot mee6.repl
+       :dependencies [[org.clojure/tools.trace "0.7.9"]]
        :plugins [[lein-ancient "0.6.15"]]}
  :prod [:back {:main ^:skip-aot mee6.core}]
  :uberjar [:back {:main mee6.core :aot :all}]}
