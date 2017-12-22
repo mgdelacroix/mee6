@@ -19,7 +19,8 @@
   (a/go-loop []
     (when-let [payload (a/<! in)]
       (let [email (build-email config payload)]
-        (a/>! out email)
+        (when email
+          (a/>! out email))
         (recur)))))
 
 (defn- start-sndloop!
