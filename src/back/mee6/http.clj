@@ -1,8 +1,9 @@
 (ns mee6.http
-  (:require [cuerdas.core :as str]
+  (:require [clojure.core.async :as a]
+            [clojure.java.io :as io]
+            [cuerdas.core :as str]
             [cheshire.core :as json]
             [mount.core :refer [defstate]]
-            [mee6.util.template :as tmpl]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.adapter.jetty :as jetty]
@@ -18,6 +19,7 @@
             [mee6.config :as cfg]
             [mee6.database :as db]
             [mee6.graphql :as gql]
+            [mee6.util.template :as tmpl]
             [mee6.util.logging :as log])
   (:import [java.io IOException OutputStream Writer]))
 
@@ -51,25 +53,32 @@
             :headers {"Content-Type" "application/json"}
             :body (json/encode result)})))
 
-;; (defn handle-sse
-;;   [req]
-;;   (letfn [(sse-writer [^OutputStream out]
-;;             (let [inbox (a/chan 1 (map :payload))]
-;;               (sv/sub! :notifications/email inbox)
-;;               (try
-;;                 (let [writer (io/make-writer out {})]
-;;                   (while
-;;                 (catch IOException e
-;;                   (when-not (= "Pipe closed" (.getMessage e))
-;;                     (throw e)))
-;;                 (finally
-;;                   (cleanup)))))))
-;;             ))]
-;;     {:headers {:content-type "text/event-stream"
-;;                :connection "close"
-;;                :cache-control "no-cache"}
-;;      :status 200
-;;      :body (piped-input-stream sse-writer)}))
+(defn handle-sse
+  [req]
+  (letfn [(write-message [writer message
+          (sse-loop [^OutputStream out]
+            (let [inbox (a/chan 1 (map :payload))
+                  writer (io/make-writer out {})]
+              (sv/sub! :notifications/email inbox)
+              (loop []
+                (let [notification (a/<!! inbox)
+                      message (str/istr "event: message\n"
+                                        "data: ~(json/encode notification)\n\n")]
+                  (try
+                    (doto writer
+                      (.write message)
+                      (.flush))
+                    (recur)
+                    (catch IOException e
+                      (when-not (= "Pipe closed" (.getMessage e))
+                        (throw e)))
+                    (finally
+                      (a/close! inbox)))))))]
+    {:headers {:content-type "text/event-stream"
+               :connection "close"
+               :cache-control "no-cache"}
+     :status 200
+     :body (piped-input-stream sse-loop)}))
 
 (defroutes app
   (GET "/" [] (resource-response "index.html" {:root "public"}))
