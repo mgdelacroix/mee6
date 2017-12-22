@@ -77,7 +77,9 @@
 
 (defn resolve-tags
   [ctx args {:keys [tags host]}]
-  (let [host (if (identical? host ::eng/localhost) "localhost" (:id host))]
+  (let [host (if (identical? host ::eng/localhost)
+               "localhost"
+               (name (:id host)))]
     (vec (into #{host} (comp (filter identity) (map name)) tags))))
 
 (defn resolve-status
