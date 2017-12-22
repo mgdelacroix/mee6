@@ -56,6 +56,14 @@
 ;;   (letfn [(sse-writer [^OutputStream out]
 ;;             (let [inbox (a/chan 1 (map :payload))]
 ;;               (sv/sub! :notifications/email inbox)
+;;               (try
+;;                 (let [writer (io/make-writer out {})]
+;;                   (while
+;;                 (catch IOException e
+;;                   (when-not (= "Pipe closed" (.getMessage e))
+;;                     (throw e)))
+;;                 (finally
+;;                   (cleanup)))))))
 ;;             ))]
 ;;     {:headers {:content-type "text/event-stream"
 ;;                :connection "close"
